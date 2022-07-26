@@ -4,13 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { Home } from "@pages/Home";
 
 import { theme } from "@utils/theme";
-
-const GlobalStyle = createGlobalStyle`
-  * {
-    padding: 0;
-    margin: 0;
-  }
-`;
+import { GlobalStyle } from "./GlobalStyles";
 
 function App() {
   return (
