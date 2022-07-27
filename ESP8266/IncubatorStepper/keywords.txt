@@ -1,0 +1,6 @@
+IncubatorStepper	KEYWORD1
+loop	KEYWORD2
+setInterval	KEYWORD2
+setSteps	KEYWORD2
+setMaxSpeed	KEYWORD2
+setAcceleration	KEYWORD2

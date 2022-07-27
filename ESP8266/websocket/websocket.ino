@@ -1,19 +1,28 @@
 #include <ESP8266WiFi.h>
 #include <NTPClient.h>
 #include <WiFiUdp.h>
-#include <AccelStepper.h>
+#include <DHT.h>
 #include <WebSocketsClient.h>
 
-const char *ssid = "AP_60"; // The name of the Wi-Fi network that will be created
-const char *password = "145632789";   // The password required to connect to it, leave blank for an open network
+#include <IncubatorStepper.h>
+
+#define DHT_PIN 4
+#define DHT_TYPE DHT11
+
+#define STEPPER_STEP 2
+#define STEPPER_DIR 0
+
+const char *ssid = "Elza";
+const char *password = "51300100";
 
 WebSocketsClient webSocket;
 
 WiFiUDP ntpUDP;
-
 NTPClient timeClient(ntpUDP, "pool.ntp.org");
 
-AccelStepper stepperX(AccelStepper::DRIVER, 2, 0); 
+IncubatorStepper stepper(STEPPER_STEP, STEPPER_DIR, timeClient);
+
+DHT dht(DHT_PIN, DHT_TYPE);
 
 int counter = 0;
 
@@ -34,7 +43,6 @@ void setup() {
   Serial.begin(9600);
 
   WiFi.begin(ssid, password);
-  Serial.println("Connecting");
   while (WiFi.status() != WL_CONNECTED){
     delay(500);
   }
@@ -49,15 +57,12 @@ void setup() {
   timeClient.begin();
   timeClient.setTimeOffset(0);
 
-  stepperX.setMaxSpeed(250);
-  stepperX.setAcceleration(1000);
+  stepper.setMaxSpeed(100);
+  stepper.setAcceleration(50);
+  stepper.setInterval(30);
 }
 
 void loop() {
-  static bool isClockwise = true;
-  const static int steps = 25;
-  const static bool shouldReturn = false;
-  
   if(WiFi.status() != WL_CONNECTED){
     return;
   }
@@ -66,41 +71,22 @@ void loop() {
   //String str = String(counter);
   //webSocket.sendTXT(str);
   //counter += 1;
-  
-  if(checkInterval(30)) {
-    stepperX.moveTo(isClockwise ? steps : -steps);
-    Serial.println("Caiu aqui");
-    isClockwise = !isClockwise;
-  }
 
-  if(checkShouldReturn(steps)) {
-    stepperX.moveTo(0);
-  }
+  loopSensor();
 
-  if(stepperX.distanceToGo() != 0) {
-    stepperX.run();
-  }
+  stepper.loop();
 
   //delay(500);
 }
 
-bool checkShouldReturn(const int steps) {
-  return stepperX.currentPosition() == steps || stepperX.currentPosition() == -steps;
+void loopSensor(){
+  float humidity = dht.readHumidity();
+  float temperature = dht.readTemperature();
+
+  if(isnan(humidity) || isnan(temperature)) {
+    return;
+  }
+
+  Serial.printf("Humidity: %.2f\n", humidity);
+  Serial.printf("Temperature: %.2f\n", temperature);
 }
-
- bool checkInterval(time_t interval) {
-  static time_t lastTime = 0;
-  const time_t cur = timeClient.getEpochTime();
-  const time_t diff = cur - lastTime;
-  
-  if(lastTime == 0) {
-    lastTime = cur;
-  }
-
-  if(diff < interval){
-    return false;
-  }
-
-  lastTime = cur;
-  return true;
- }
