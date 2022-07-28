@@ -18,10 +18,7 @@ export class CommunicateIncubatorService {
 		ws.on('ping', () => ws.pong());
 
 		ws.on('message', (message) => {
-			const formattedMessage = this.bufferToJSON(message);
-			if (formattedMessage) {
-				this.listeners.forEach((ws) => ws.send(formattedMessage));
-			}
+			this.listeners.forEach((ws) => ws.send(message));
 		});
 
 		ws.on('close', () => {
@@ -36,13 +33,5 @@ export class CommunicateIncubatorService {
 		this.listeners.set(key, ws);
 
 		ws.on('close', () => this.listeners.delete(key));
-	}
-
-	private bufferToJSON(message: WebSocket.RawData) {
-		try {
-			return JSON.parse(message.toString()) as IIncubatorData;
-		} catch (err) {
-			return `${message}`;
-		}
 	}
 }

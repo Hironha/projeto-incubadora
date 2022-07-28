@@ -8,9 +8,6 @@ IncubatorStepper::IncubatorStepper(int step, int dir, NTPClient timeClient) {
 }
 
 void IncubatorStepper::loop() {
-
-  const static bool shouldReturn = false;
-
   if (this->_checkInterval()) {
     this->_stepper.moveTo(this->_steps);
   }
