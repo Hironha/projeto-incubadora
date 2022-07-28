@@ -92,13 +92,9 @@ void sendSensorData(float humidity, float temperature) {
   doc["humidity"] = humidity;
   doc["temperature"] = temperature;
   serializeJson(doc, buffer);
-
-  const size_t payloadSize = buffer.length();
-  byte *payload = new byte(payloadSize);
-  buffer.getBytes(payload, payloadSize + 1);
-  webSocket.sendBIN(payload, payloadSize);
-
-  delete payload;
+  
+  webSocket.sendTXT(buffer);
+  //delete payload;
 }
 
 bool checkSensorInterval(const time_t interval) {
