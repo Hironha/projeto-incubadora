@@ -18,6 +18,7 @@ import type { LottieRef } from "lottie-react";
 type SensorData = {
 	humidity: number;
 	temperature: number;
+	sensoredAt: string;
 };
 
 export const Overview = () => {
@@ -47,9 +48,7 @@ export const Overview = () => {
 		const ws = new WebSocket(url);
 
 		ws.onmessage = async event => {
-			console.log(event.data);
 			setSensorData(JSON.parse(event.data));
-			console.log(temperatureRef);
 			temperatureRef.current?.goToAndPlay(0);
 			humidityRef.current?.goToAndPlay(0);
 		};
@@ -62,6 +61,7 @@ export const Overview = () => {
 	return (
 		<Container>
 			<ImageLogo src={Logo} alt="Logo incubadora" />
+			{sensorData && <h3>Atualizado em {new Date(sensorData.sensoredAt).toLocaleString()}</h3>}
 			<CardsList>
 				<CardWrapper>
 					<LottieIcon animationData={humidityIcon} loop={false} lottieRef={humidityRef} />
