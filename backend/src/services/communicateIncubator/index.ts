@@ -17,8 +17,9 @@ export class CommunicateIncubatorService {
 
 		ws.on('ping', () => ws.pong());
 
-		ws.on('message', (message) => {
-			this.listeners.forEach((ws) => ws.send(message));
+		ws.on('message', async (message, isBinary) => {
+			const payload = await this.payloadToString(message, isBinary);
+			this.listeners.forEach((ws) => ws.send(payload));
 		});
 
 		ws.on('close', () => {
@@ -33,5 +34,15 @@ export class CommunicateIncubatorService {
 		this.listeners.set(key, ws);
 
 		ws.on('close', () => this.listeners.delete(key));
+	}
+
+	private async payloadToString(
+		data: string | Blob | WebSocket.RawData,
+		isBinary: boolean
+	) {
+		if (isBinary) return await (data as Blob).text();
+		if (typeof data === 'string') return data;
+		if (Buffer.isBuffer(data)) return JSON.stringify(data.toString());
+		return null;
 	}
 }
