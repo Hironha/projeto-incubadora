@@ -1,5 +1,4 @@
 import type * as WebSocket from 'ws';
-import type { IIncubatorData } from '@interfaces/models/incubatorData';
 
 export class CommunicateIncubatorService {
 	private listeners: Map<number, WebSocket> = new Map();
@@ -18,8 +17,15 @@ export class CommunicateIncubatorService {
 		ws.on('ping', () => ws.pong());
 
 		ws.on('message', async (message, isBinary) => {
-			const payload = await this.payloadToString(message, isBinary);
-			this.listeners.forEach((ws) => ws.send(payload));
+			const jsonStringified = await this.payloadToString(message, isBinary);
+			const json = (() => {
+				if (!jsonStringified) return null;
+				const payload = JSON.parse(jsonStringified);
+				payload['sensoredAt'] = new Date().toUTCString();
+				return JSON.stringify(payload);
+			})();
+
+			this.listeners.forEach((ws) => ws.send(json));
 		});
 
 		ws.on('close', () => {
