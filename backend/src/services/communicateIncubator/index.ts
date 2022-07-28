@@ -34,8 +34,6 @@ export class CommunicateIncubatorService {
 	}
 
 	public addListener(ws: WebSocket) {
-		if (!this.sender) return ws.close();
-
 		const key = this.listeners.size;
 		this.listeners.set(key, ws);
 
