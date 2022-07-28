@@ -1,10 +1,9 @@
 #include <AccelStepper.h>
+#include <Arduino.h>
 #include <IncubatorStepper.h>
-#include <NTPClient.h>
 
-IncubatorStepper::IncubatorStepper(int step, int dir, NTPClient timeClient) {
+IncubatorStepper::IncubatorStepper(int step, int dir) {
   this->_stepper = AccelStepper(AccelStepper::DRIVER, step, dir);
-  this->_timeClient = &timeClient;
 }
 
 void IncubatorStepper::loop() {
@@ -43,14 +42,14 @@ bool IncubatorStepper::_checkShouldReturn() {
 
 bool IncubatorStepper::_checkInterval() {
   static time_t lastTime = 0;
-  const time_t cur = this->_timeClient->getEpochTime();
+  const time_t cur = millis();
   const time_t diff = cur - lastTime;
 
   if (lastTime == 0) {
     lastTime = cur;
   }
 
-  if (diff < this->_interval) {
+  if (diff < this->_interval * 1000)  {
     return false;
   }
 

@@ -2,11 +2,12 @@
 #define IncubatorStepper_h
 
 #include <AccelStepper.h>
+#include <Arduino.h>
 #include <NTPClient.h>
 
 class IncubatorStepper {
   public:
-    IncubatorStepper(int step, int dir, NTPClient timeClient);
+    IncubatorStepper(int step, int dir);
     void loop();
     void setInterval(time_t interval);
     void setSteps(unsigned int steps);
@@ -15,7 +16,6 @@ class IncubatorStepper {
   
   private:
     AccelStepper _stepper;
-    NTPClient* _timeClient;
     time_t _interval;
     unsigned int _steps;
     bool _checkInterval();

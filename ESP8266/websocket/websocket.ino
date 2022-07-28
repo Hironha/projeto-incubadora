@@ -2,9 +2,7 @@
 #include <DHT.h>
 #include <ESP8266WiFi.h>
 #include <IncubatorStepper.h>
-#include <NTPClient.h>
 #include <WebSocketsClient.h>
-#include <WiFiUdp.h>
 
 #define DHT_PIN 4
 #define DHT_TYPE DHT11
@@ -17,10 +15,7 @@ const char *password = "145632789";
 
 WebSocketsClient webSocket;
 
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org");
-
-IncubatorStepper stepper(STEPPER_STEP, STEPPER_DIR, timeClient);
+IncubatorStepper stepper(STEPPER_STEP, STEPPER_DIR);
 
 DHT dht(DHT_PIN, DHT_TYPE);
 
@@ -51,9 +46,6 @@ void setup() {
   webSocket.onEvent(webSocketEvent);
   webSocket.setReconnectInterval(3000);
   webSocket.enableHeartbeat(15000, 3000, 2);
-
-  timeClient.begin();
-  timeClient.setTimeOffset(0);
 
   stepper.setMaxSpeed(100);
   stepper.setAcceleration(50);
@@ -98,14 +90,14 @@ void sendSensorData(float humidity, float temperature) {
 
 bool checkSensorInterval(const time_t interval) {
   static time_t lastTime = 0;
-  const time_t cur = timeClient.getEpochTime();
+  const time_t cur = millis();
   const time_t diff = cur - lastTime;
 
   if (lastTime == 0) {
     lastTime = cur;
   }
 
-  if (diff < interval) {
+  if (diff < interval * 1000) {
     return false;
   }
 
