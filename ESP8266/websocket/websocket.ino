@@ -73,8 +73,8 @@ void loop() {
 
 void loopSensor() {
   const static time_t interval = 10;
-  // float humidity = round(dht.readHumidity()*100)/100;
-  // float temperature = round(dht.readTemperature()*100)/100;
+  // float humidity = dht.readHumidity();
+  // float temperature = dht.readTemperature();
 
   // if(isnan(humidity) || isnan(temperature)) {
   // return;
@@ -94,7 +94,6 @@ void sendSensorData(float humidity, float temperature) {
   serializeJson(doc, buffer);
   
   webSocket.sendTXT(buffer);
-  //delete payload;
 }
 
 bool checkSensorInterval(const time_t interval) {
