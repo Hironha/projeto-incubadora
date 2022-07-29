@@ -2,34 +2,37 @@ import type * as WebSocket from 'ws';
 
 export class CommunicateIncubatorService {
 	private listeners: Map<number, WebSocket> = new Map();
+	private timeout: NodeJS.Timeout | null = null;
 	private sender: WebSocket | null = null;
+	private ttl: number;
 
-	constructor() {}
+	constructor(ttl: number = 30 * 1000) {
+		this.ttl = ttl;
+	}
 
 	public addSender(ws: WebSocket) {
-		this.sender = ws;
+		ws.onopen = () => {
+			this.sender = ws;
+			this.setServerTimeout();
+		};
 
-		ws.on('error', (err) => {
-			console.error(err);
+		ws.onerror = (err) => {
 			this.sender = null;
-		});
+			console.error(err);
+		};
 
-		ws.on('ping', () => ws.pong());
+		ws.onclose = () => {
+			this.sender = null;
+		};
+
+		ws.on('ping', () => {
+			ws.pong();
+			this.setServerTimeout();
+		});
 
 		ws.on('message', async (message, isBinary) => {
-			const jsonStringified = await this.payloadToString(message, isBinary);
-			const json = (() => {
-				if (!jsonStringified) return null;
-				const payload = JSON.parse(jsonStringified);
-				payload['sensoredAt'] = new Date().toUTCString();
-				return JSON.stringify(payload);
-			})();
-
-			this.listeners.forEach((ws) => ws.send(json));
-		});
-
-		ws.on('close', () => {
-			this.sender = null;
+			const payload = await this.formatPayloadToClient(message, isBinary);
+			if (payload) this.listeners.forEach((ws) => ws.send(payload));
 		});
 	}
 
@@ -38,6 +41,32 @@ export class CommunicateIncubatorService {
 		this.listeners.set(key, ws);
 
 		ws.on('close', () => this.listeners.delete(key));
+	}
+
+	private setServerTimeout() {
+		if (this.timeout) clearInterval(this.timeout);
+
+		this.timeout = setTimeout(() => {
+			if (this.sender) this.sender.close(1000);
+		}, this.ttl);
+	}
+
+	private async formatPayloadToClient(
+		data: string | Blob | WebSocket.RawData,
+		isBinary: boolean
+	) {
+		const paylodStringified = await this.payloadToString(data, isBinary);
+		if (!paylodStringified || !this.isJSON(paylodStringified)) return null;
+		return paylodStringified;
+	}
+
+	private isJSON(json: string) {
+		try {
+			JSON.parse(json);
+			return true;
+		} catch (err) {
+			return false;
+		}
 	}
 
 	private async payloadToString(
