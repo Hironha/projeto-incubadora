@@ -11,10 +11,8 @@ export class CommunicateIncubatorService {
 	}
 
 	public addSender(ws: WebSocket) {
-		ws.onopen = () => {
-			this.sender = ws;
-			this.setServerTimeout();
-		};
+		this.sender = ws;
+		this.setServerTimeout();
 
 		ws.onerror = (err) => {
 			this.sender = null;
@@ -28,6 +26,7 @@ export class CommunicateIncubatorService {
 		ws.on('ping', () => {
 			ws.pong();
 			this.setServerTimeout();
+			console.log(this.timeout);
 		});
 
 		ws.on('message', async (message, isBinary) => {
@@ -40,14 +39,17 @@ export class CommunicateIncubatorService {
 		const key = this.listeners.size;
 		this.listeners.set(key, ws);
 
-		ws.on('close', () => this.listeners.delete(key));
+		ws.onclose = () => this.listeners.delete(key);
 	}
 
 	private setServerTimeout() {
-		if (this.timeout) clearInterval(this.timeout);
+		if (this.timeout) clearTimeout(this.timeout);
 
 		this.timeout = setTimeout(() => {
-			if (this.sender) this.sender.close(1000);
+			if (this.sender) {
+				this.sender.close(1000);
+				this.sender = null;
+			}
 		}, this.ttl);
 	}
 
