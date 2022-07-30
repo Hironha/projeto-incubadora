@@ -2,7 +2,7 @@ import type * as WebSocket from 'ws';
 
 import { IncubatorRepository } from 'src/repositories/incubator';
 
-import type { ISensorData } from '@interfaces/models/incubatorData';
+import type { ISensorData } from '@interfaces/models/sensorData';
 export class CommunicateIncubatorService {
 	private listeners: Map<number, WebSocket> = new Map();
 	private timeout: NodeJS.Timeout | null = null;
