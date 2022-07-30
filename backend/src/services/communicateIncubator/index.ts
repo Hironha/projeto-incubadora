@@ -1,37 +1,45 @@
 import type * as WebSocket from 'ws';
 
+import { IncubatorRepository } from 'src/repositories/incubator';
+
+import type { ISensorData } from '@interfaces/models/incubatorData';
 export class CommunicateIncubatorService {
 	private listeners: Map<number, WebSocket> = new Map();
 	private timeout: NodeJS.Timeout | null = null;
 	private sender: WebSocket | null = null;
-	private ttl: number;
+	private ttl: number = 30 * 1000;
+	private sensoredData: ISensorData[] = [];
+	private maxSensoredData = 10;
 
-	constructor(ttl: number = 30 * 1000) {
-		this.ttl = ttl;
-	}
+	constructor(private incubatorRepository = new IncubatorRepository()) {}
 
-	public addSender(ws: WebSocket) {
+	public addSender(ws: WebSocket, ttl?: number) {
 		this.sender = ws;
+		this.ttl = ttl ? ttl : this.ttl;
 		this.setServerTimeout();
 
 		ws.onerror = (err) => {
+			if (!this.sender) return;
+
+			this.sender.close(1000, 'error');
 			this.sender = null;
 			console.error(err);
 		};
 
-		ws.onclose = () => {
+		ws.onclose = (event) => {
 			this.sender = null;
 		};
 
 		ws.on('ping', () => {
 			ws.pong();
 			this.setServerTimeout();
-			console.log(this.timeout);
 		});
 
 		ws.on('message', async (message, isBinary) => {
 			const payload = await this.formatPayloadToClient(message, isBinary);
-			if (payload) this.listeners.forEach((ws) => ws.send(payload));
+			if (payload) {
+				await this.broadcast(payload);
+			}
 		});
 	}
 
@@ -53,21 +61,55 @@ export class CommunicateIncubatorService {
 		}, this.ttl);
 	}
 
+	private async broadcast(payload: string) {
+		this.listeners.forEach((ws) => ws.send(payload));
+		this.sensoredData.push(JSON.parse(payload));
+		if (this.sensoredData.length < this.maxSensoredData) return;
+
+		const accSensoredData = this.sensoredData.reduce(
+			(acc, cur) => {
+				acc.humidity += cur.humidity;
+				acc.temperature += cur.temperature;
+				return acc;
+			},
+			{ humidity: 0, temperature: 0 } as Omit<ISensorData, 'sensored_at'>
+		);
+
+		const meanSensoredData: ISensorData = {
+			humidity: accSensoredData.humidity / this.sensoredData.length,
+			temperature: accSensoredData.temperature / this.sensoredData.length,
+			sensored_at: new Date().toUTCString(),
+		};
+
+		const saveSensorDataFlow = await this.incubatorRepository.saveSensorData(
+			meanSensoredData
+		);
+
+		if (saveSensorDataFlow.isRight()) {
+			this.sensoredData = [];
+		}
+	}
+
 	private async formatPayloadToClient(
 		data: string | Blob | WebSocket.RawData,
 		isBinary: boolean
 	) {
-		const paylodStringified = await this.payloadToString(data, isBinary);
-		if (!paylodStringified || !this.isJSON(paylodStringified)) return null;
-		return paylodStringified;
+		const payloadStringified = await this.payloadToString(data, isBinary);
+		if (!payloadStringified) return null;
+
+		const payload = this.toJSON(payloadStringified);
+		if (!payload) return null;
+
+		(payload as ISensorData)['sensored_at'] = new Date().toUTCString();
+
+		return JSON.stringify(payload);
 	}
 
-	private isJSON(json: string) {
+	private toJSON(json: string) {
 		try {
-			JSON.parse(json);
-			return true;
+			return JSON.parse(json) as Pick<ISensorData, 'humidity' | 'temperature'>;
 		} catch (err) {
-			return false;
+			return null;
 		}
 	}
 
