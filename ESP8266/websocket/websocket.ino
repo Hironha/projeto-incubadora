@@ -79,7 +79,7 @@ void loopSensor() {
 
 void sendSensorData(float humidity, float temperature) {
   String buffer;
-  DynamicJsonDocument doc(256);
+  StaticJsonDocument doc(256);
 
   doc["humidity"] = humidity;
   doc["temperature"] = temperature;
