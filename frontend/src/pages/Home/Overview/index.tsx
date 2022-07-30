@@ -9,24 +9,28 @@ import {
 	ImageLogo,
 } from "./styles";
 
+import { useWS } from "src/hooks/useWS";
+
 import Logo from "@assets/images/logo.png";
 import humidityIcon from "@assets/lotties/humidity-icon.json";
 import temperatureIcon from "@assets/lotties/temperature-icon.json";
 
 import type { LottieRef } from "lottie-react";
-import { useWS } from "src/hooks/useWS";
 
 type SensorData = {
 	humidity: number;
 	temperature: number;
-	sensoredAt: string;
+	sensored_at: string;
 };
 
 export const Overview = () => {
 	const temperatureRef: LottieRef = useRef(null);
 	const humidityRef: LottieRef = useRef(null);
 	const [sensorData, setSensorData] = useState<SensorData>();
-	const [ws] = useWS({ url: "ws://192.168.0.2:80/incubator/listen", reconnect: true });
+	const { ws, reconnect, status } = useWS({
+		url: "ws://192.168.0.2:80/incubator/listen",
+		reconnect: true,
+	});
 
 	const formatCelsius = (temperature: number) => {
 		const formatter = new Intl.NumberFormat("pt-br", {
@@ -46,6 +50,7 @@ export const Overview = () => {
 
 	useEffect(() => {
 		ws.onmessage = event => {
+			console.log(JSON.parse(event.data));
 			setSensorData(JSON.parse(event.data));
 			temperatureRef.current?.goToAndPlay(0);
 			humidityRef.current?.goToAndPlay(0);
@@ -55,7 +60,7 @@ export const Overview = () => {
 	return (
 		<Container>
 			<ImageLogo src={Logo} alt="Logo incubadora" />
-			{sensorData && <h3>Atualizado em {new Date(sensorData.sensoredAt).toLocaleString()}</h3>}
+			{sensorData && <h3>Atualizado em {new Date(sensorData.sensored_at).toLocaleString()}</h3>}
 			<CardsList>
 				<CardWrapper>
 					<LottieIcon animationData={humidityIcon} loop={false} lottieRef={humidityRef} />

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type UseWSProps = {
 	url: string;
@@ -7,24 +7,39 @@ type UseWSProps = {
 	reconnectionInterval?: number;
 };
 
-export const useWS = (props: UseWSProps): [WebSocket] => {
+type WSStatus = "connected" | "connecting" | "disconnected";
+
+export const useWS = (props: UseWSProps) => {
 	const {
 		url,
 		reconnect = true,
 		reconnectionAttempts = 3,
-		reconnectionInterval = 15 * 1000,
+		reconnectionInterval = 10 * 1000,
 	} = props;
-
+	const attempts = useRef(0);
 	const ws = useRef<WebSocket>(new WebSocket(url));
+	const [status, setStatus] = useState<WSStatus>("connected");
 
-	const reconnectWS = (reason: string, attemptsAmount = 0) => {
-		if (attemptsAmount === reconnectionAttempts || reason !== "page_changed") return;
+	const reconnectWS = useCallback((reason?: string) => {
+		if (reason === "page_changed") return;
+		if (attempts.current >= reconnectionAttempts) {
+			attempts.current = 0;
+			setStatus("disconnected");
+			return;
+		}
+
+		attempts.current += 1;
+		setStatus("connecting");
 
 		setTimeout(() => {
-			ws.current = new WebSocket(url);
-			ws.current.onclose = () => reconnectWS(reason, attemptsAmount + 1);
+			const newWS = new WebSocket(url);
+			newWS.onerror = ws.current.onerror;
+			newWS.onopen = ws.current.onopen;
+			newWS.onmessage = ws.current.onmessage;
+			ws.current = newWS;
+			ws.current.onclose = event => reconnectWS(event.reason);
 		}, reconnectionInterval);
-	};
+	}, []);
 
 	useEffect(() => {
 		if (reconnect) {
@@ -34,5 +49,9 @@ export const useWS = (props: UseWSProps): [WebSocket] => {
 		return () => ws.current.close(1000, "page_changed");
 	}, [reconnect]);
 
-	return [ws.current];
+	return {
+		ws: ws.current,
+		status,
+		reconnect: reconnectWS,
+	};
 };
