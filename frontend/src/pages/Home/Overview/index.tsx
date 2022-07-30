@@ -14,6 +14,7 @@ import humidityIcon from "@assets/lotties/humidity-icon.json";
 import temperatureIcon from "@assets/lotties/temperature-icon.json";
 
 import type { LottieRef } from "lottie-react";
+import { useWS } from "src/hooks/useWS";
 
 type SensorData = {
 	humidity: number;
@@ -25,6 +26,7 @@ export const Overview = () => {
 	const temperatureRef: LottieRef = useRef(null);
 	const humidityRef: LottieRef = useRef(null);
 	const [sensorData, setSensorData] = useState<SensorData>();
+	const [ws] = useWS({ url: "ws://192.168.0.2:80/incubator/listen", reconnect: true });
 
 	const formatCelsius = (temperature: number) => {
 		const formatter = new Intl.NumberFormat("pt-br", {
@@ -43,18 +45,10 @@ export const Overview = () => {
 	};
 
 	useEffect(() => {
-		const url = "ws://192.168.0.2:80/incubator/listen";
-
-		const ws = new WebSocket(url);
-
-		ws.onmessage = async event => {
+		ws.onmessage = event => {
 			setSensorData(JSON.parse(event.data));
 			temperatureRef.current?.goToAndPlay(0);
 			humidityRef.current?.goToAndPlay(0);
-		};
-
-		return () => {
-			ws.close();
 		};
 	}, []);
 
