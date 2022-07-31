@@ -17,8 +17,21 @@ export const useWS = (props: UseWSProps) => {
 		reconnectionInterval = 10 * 1000,
 	} = props;
 	const attempts = useRef(0);
-	const ws = useRef<WebSocket>(new WebSocket(url));
+	const ws = useRef<WebSocket | null>(null);
 	const [status, setStatus] = useState<WSStatus>("connected");
+
+	const getWS = () => {
+		if (ws.current === null) {
+			ws.current = new WebSocket(url);
+			return ws.current;
+		}
+		return ws.current;
+	};
+
+	const handleOpenConnection = useCallback(() => {
+		setStatus("connected");
+		attempts.current = 0;
+	}, []);
 
 	const reconnectWS = useCallback((reason?: string) => {
 		if (reason === "page_changed") return;
@@ -33,9 +46,10 @@ export const useWS = (props: UseWSProps) => {
 
 		setTimeout(() => {
 			const newWS = new WebSocket(url);
-			newWS.onerror = ws.current.onerror;
-			newWS.onopen = ws.current.onopen;
-			newWS.onmessage = ws.current.onmessage;
+			newWS.onerror = getWS().onerror;
+			newWS.onopen = getWS().onopen;
+			newWS.onmessage = getWS().onmessage;
+			newWS.onopen = handleOpenConnection;
 			ws.current = newWS;
 			ws.current.onclose = event => reconnectWS(event.reason);
 		}, reconnectionInterval);
@@ -43,14 +57,14 @@ export const useWS = (props: UseWSProps) => {
 
 	useEffect(() => {
 		if (reconnect) {
-			ws.current.onclose = event => reconnectWS(event.reason);
+			getWS().onclose = event => reconnectWS(event.reason);
 		}
 
-		return () => ws.current.close(1000, "page_changed");
+		return () => getWS().close(1000, "page_changed");
 	}, [reconnect]);
 
 	return {
-		ws: ws.current,
+		ws: getWS(),
 		status,
 		reconnect: reconnectWS,
 	};

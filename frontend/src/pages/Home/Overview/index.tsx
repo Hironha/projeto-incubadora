@@ -50,7 +50,6 @@ export const Overview = () => {
 
 	useEffect(() => {
 		ws.onmessage = event => {
-			console.log(JSON.parse(event.data));
 			setSensorData(JSON.parse(event.data));
 			temperatureRef.current?.goToAndPlay(0);
 			humidityRef.current?.goToAndPlay(0);
@@ -61,6 +60,8 @@ export const Overview = () => {
 		<Container>
 			<ImageLogo src={Logo} alt="Logo incubadora" />
 			{sensorData && <h3>Atualizado em {new Date(sensorData.sensored_at).toLocaleString()}</h3>}
+			{status === "connecting" && <h3>Conexão perdida. Tentando reconexão...</h3>}
+			{status === "disconnected" && <button onClick={() => reconnect()}>Reconectar</button>}
 			<CardsList>
 				<CardWrapper>
 					<LottieIcon animationData={humidityIcon} loop={false} lottieRef={humidityRef} />
