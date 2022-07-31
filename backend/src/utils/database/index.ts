@@ -1,6 +1,6 @@
 import admin from 'firebase-admin';
 import { getFirestore } from 'firebase-admin/firestore';
-import certification from './projeto-incubadora-cert.json';
+import certification from './projeto-incubadora.cert.json';
 
 import type { ServiceAccount } from 'firebase-admin';
 
