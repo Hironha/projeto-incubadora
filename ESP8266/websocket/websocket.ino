@@ -4,14 +4,16 @@
 #include <IncubatorStepper.h>
 #include <WebSocketsClient.h>
 
-#define DHT_PIN 4
+#define DHT_PIN 5
 #define DHT_TYPE DHT11
+
+#define RELAY_PIN 16
 
 #define STEPPER_STEP 2
 #define STEPPER_DIR 0
 
-const char *ssid = "AP_60";
-const char *password = "145632789";
+const char *ssid = "M52G";
+const char *password = "bsrb4786";
 
 WebSocketsClient webSocket;
 
@@ -37,12 +39,13 @@ void setup() {
 
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
+    Serial.println(".");
     delay(500);
   }
   Serial.print("Connected, IP address: ");
   Serial.println(WiFi.localIP());
 
-  webSocket.begin("192.168.0.2", 80, "/incubator/send");
+  webSocket.begin("192.168.125.150", 80, "/incubator/send");
   webSocket.onEvent(webSocketEvent);
   webSocket.setReconnectInterval(3000);
   webSocket.enableHeartbeat(15000, 3000, 2);
@@ -56,24 +59,30 @@ void loop() {
   if (WiFi.status() != WL_CONNECTED) {
     return;
   }
+
   webSocket.loop();
-
   loopSensor();
-
   stepper.loop();
 }
 
 void loopSensor() {
-  const static time_t interval = 10;
-  // float humidity = dht.readHumidity();
-  // float temperature = dht.readTemperature();
+  const static time_t interval = 5;
+  float humidity = dht.readHumidity();
+  float temperature = dht.readTemperature();
 
-  // if(isnan(humidity) || isnan(temperature)) {
-  // return;
-  //}
+  if (isnan(humidity) || isnan(temperature)) {
+    return;
+  }
+
+  if(temperature >= 36 || temperature <= 38){
+    digitalWrite(RELAY_PIN, LOW);
+  }else {
+    digitalWrite(RELAY_PIN, HIGH);
+  }
 
   if (checkSensorInterval(interval)) {
-    sendSensorData(33.2, 25.66);
+    Serial.printf("%.2f   %.2f\n", humidity, temperature);
+    sendSensorData(humidity, temperature);
   }
 }
 
@@ -84,7 +93,7 @@ void sendSensorData(float humidity, float temperature) {
   doc["humidity"] = humidity;
   doc["temperature"] = temperature;
   serializeJson(doc, buffer);
-  
+
   webSocket.sendTXT(buffer);
 }
 
