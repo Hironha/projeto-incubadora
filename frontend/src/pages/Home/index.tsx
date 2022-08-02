@@ -2,17 +2,15 @@ import { Outlet, Route, Routes } from "react-router-dom";
 
 import { Layout } from "@components/Layout";
 import { Overview, Tabs } from "./components";
-import { Container, PageWrapper } from "./styles";
+import { PageWrapper } from "./styles";
 
 export const Home = () => {
 	const homeContainer = (
 		<Layout>
-			<Container>
-				<PageWrapper>
-					<Tabs />
-					<Outlet />
-				</PageWrapper>
-			</Container>
+			<PageWrapper>
+				<Tabs />
+				<Outlet />
+			</PageWrapper>
 		</Layout>
 	);
 

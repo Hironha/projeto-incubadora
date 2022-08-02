@@ -1,18 +1,14 @@
 import styled from "styled-components";
 
 export const Container = styled.div`
-	display: flex;
-	width: 100%;
-	min-height: inherit;
-	flex-direction: column;
-	justify-content: center;
-	align-items: stretch;
+	margin: 4rem 0;
 `;
 
 export const PageWrapper = styled.div`
-	margin: 0 auto;
+	position: relative;
+	margin: 4rem auto 2rem auto;
 	padding: 1.25rem 2rem 3rem 2rem;
-  min-height: 420px;
+	min-height: 420px;
 	max-height: 720px;
 	width: clamp(320px, 80%, 720px);
 	border-radius: 5px;
