@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import {
 	Container,
 	LottieIcon,
@@ -28,7 +29,7 @@ export const Overview = () => {
 	const humidityRef: LottieRef = useRef(null);
 	const [sensorData, setSensorData] = useState<SensorData>();
 	const { ws, reconnect, status } = useWS({
-		url: "ws://192.168.0.2:80/incubator/listen",
+		url: "ws://172.24.160.208/incubator/listen",
 		reconnect: true,
 	});
 

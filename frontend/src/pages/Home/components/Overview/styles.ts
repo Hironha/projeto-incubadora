@@ -4,18 +4,21 @@ import Lottie from "lottie-react";
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: inherit;
+  max-width: 100%;
+  max-height: inherit;
+  margin: 0 auto;
   justify-content: center;
-  gap: 24px;
+  gap: 1.25rem;
   align-items: center;
 `;
 
 export const ImageLogo = styled.img`
-  max-width: 200px;
+  max-width: 100%;
+  max-height: 200px;
 `;
 
 export const LottieIcon = styled(Lottie)`
-  height: 70px;
+  height: 3.5rem;
 `;
 
 export const CardsList = styled.ul`
@@ -32,18 +35,17 @@ export const CardWrapper = styled.li`
   width: 160px;
   height: 180px;
   padding: 16px;
-  /* box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; */
   box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px,
     rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
 `;
 
 export const CardTitle = styled.span`
-  font-size: 20px;
+  font-size: 1.25rem;
   text-align: center;
 `;
 
 export const CartText = styled.span`
-  font-size: 24px;
+  font-size: 1.5rem;
   text-align: center;
   font-weight: 600;
 `;
