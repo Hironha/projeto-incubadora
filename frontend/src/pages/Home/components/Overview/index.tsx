@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import {
 	Container,
 	LottieIcon,
@@ -10,7 +9,9 @@ import {
 	ImageLogo,
 } from "./styles";
 
-import { useWS } from "src/hooks/useWS";
+import { Button } from "@components/Button";
+
+import { useWS } from "@hooks/useWS";
 
 import Logo from "@assets/images/logo.png";
 import humidityIcon from "@assets/lotties/humidity-icon.json";
@@ -25,11 +26,11 @@ type SensorData = {
 };
 
 export const Overview = () => {
-	const temperatureRef: LottieRef = useRef(null);
 	const humidityRef: LottieRef = useRef(null);
+	const temperatureRef: LottieRef = useRef(null);
 	const [sensorData, setSensorData] = useState<SensorData>();
 	const { ws, reconnect, status } = useWS({
-		url: "ws://172.24.160.208/incubator/listen",
+		url: "ws://192.168.125.150/incubator/listen",
 		reconnect: true,
 	});
 
@@ -49,6 +50,8 @@ export const Overview = () => {
 		return `${formatter.format(humidity)}%`;
 	};
 
+	const handleReconnect = () => reconnect();
+
 	useEffect(() => {
 		ws.onmessage = event => {
 			setSensorData(JSON.parse(event.data));
@@ -62,7 +65,11 @@ export const Overview = () => {
 			<ImageLogo src={Logo} alt="Logo incubadora" />
 			{sensorData && <h3>Atualizado em {new Date(sensorData.sensored_at).toLocaleString()}</h3>}
 			{status === "connecting" && <h3>Conexão perdida. Tentando reconexão...</h3>}
-			{status === "disconnected" && <button onClick={() => reconnect()}>Reconectar</button>}
+			{status === "disconnected" && (
+				<Button styleType="primary" onClick={handleReconnect}>
+					Reconectar
+				</Button>
+			)}
 			<CardsList>
 				<CardWrapper>
 					<LottieIcon animationData={humidityIcon} loop={false} lottieRef={humidityRef} />

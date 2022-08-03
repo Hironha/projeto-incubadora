@@ -4,6 +4,8 @@ import { Layout } from "@components/Layout";
 import { Overview, Tabs } from "./components";
 import { PageWrapper } from "./styles";
 
+import { TabOptions } from "./components/Tabs";
+
 export const Home = () => {
 	const homeContainer = (
 		<Layout>
@@ -17,8 +19,8 @@ export const Home = () => {
 	return (
 		<Routes>
 			<Route path="/" element={homeContainer}>
-				<Route path="/" element={<Overview />}></Route>
-				<Route path="/monitor" element={<div>teste</div>}></Route>
+				<Route path={`/`} element={<Overview />}></Route>
+				<Route path={`/${TabOptions.CONTROL}`} element={<div>teste</div>}></Route>
 			</Route>
 		</Routes>
 	);
