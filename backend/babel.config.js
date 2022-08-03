@@ -15,14 +15,17 @@ module.exports = {
 			'module-resolver',
 			{
 				alias: {
-					// '@controllers': './src/controllers',
+					'@controllers': './src/controllers',
+					'@dtos': './src/dtos',
 					'@communicators': './src/communicators',
 					'@services': './src/services',
 					'@interfaces': './src/interfaces',
 					'@utils': './src/utils',
+					"@repositories": './src/repositories'
 				},
 			},
 		],
+		['@babel/plugin-proposal-decorators', { legacy: true }],
 	],
 	ignore: ['**/*.spec.ts'],
 };

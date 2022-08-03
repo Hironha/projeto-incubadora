@@ -1,6 +1,6 @@
 import type * as WebSocket from 'ws';
 
-import { IncubatorRepository } from 'src/repositories/incubator';
+import { IncubatorRepository } from '@repositories/incubator';
 
 import type { ISensorData } from '@interfaces/models/sensorData';
 export class CommunicateIncubatorService {
@@ -31,12 +31,14 @@ export class CommunicateIncubatorService {
 		};
 
 		ws.on('ping', () => {
+			console.log('pinged');
 			ws.pong();
 			this.setServerTimeout();
 		});
 
 		ws.on('message', async (message, isBinary) => {
 			const payload = await this.formatPayloadToClient(message, isBinary);
+			console.log(payload);
 			if (payload) {
 				await this.broadcast(payload);
 			}

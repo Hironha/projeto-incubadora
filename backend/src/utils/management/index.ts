@@ -1,8 +1,7 @@
 interface FlowManager<T> {
 	isLeft(): this is Left<T>;
 	isRight(): this is Right<T>;
-	export?(): T;
-	except?(): T;
+	export(): T;
 }
 
 export type Either<T, R> = NonNullable<Left<T> | Right<R>>;
@@ -18,7 +17,7 @@ export class Left<T> implements FlowManager<T> {
 		return false;
 	}
 
-	except(): T {
+	export(): T {
 		return this.exception;
 	}
 }

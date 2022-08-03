@@ -1,22 +1,27 @@
 import express from 'express';
 import enableWS from 'express-ws';
+import helmet from 'helmet';
 
 import { logAvailableRoutes } from '@utils/routes';
-import { getRouter } from './routers';
+import { routerFactories } from './routers';
 
 import type { Router } from 'express';
 
 const app = express();
-const expressWS = enableWS(app);
+enableWS(app);
 
 const port = 80;
 const isDev = process.env.NODE_ENV === 'dev';
 const hostname: string = '192.168.0.2';
 
-const routers: Router[] = [getRouter()];
+app.use(helmet());
+
+const routers: Router[] = Object.values(routerFactories).map((factory) =>
+	factory()
+);
 
 routers.forEach((router) => {
-	expressWS.app.use(router);
+	app.use(router);
 });
 
 app.listen(port, hostname, () => {

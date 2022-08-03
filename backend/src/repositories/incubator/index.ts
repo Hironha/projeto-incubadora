@@ -4,7 +4,7 @@ import { Left, Right } from '@utils/management';
 import { errorsFactory as errors } from './errors';
 
 import type { Either } from '@utils/management';
-import type { IException } from '@utils/exception';
+import type { Exception } from '@utils/exception';
 import type { ISensorData } from '@interfaces/models/sensorData';
 
 export class IncubatorRepository {
@@ -14,14 +14,14 @@ export class IncubatorRepository {
 
 	public async saveSensorData(
 		sensorData: ISensorData
-	): Promise<Either<IException, ISensorData>> {
+	): Promise<Either<Exception, ISensorData>> {
 		try {
 			await db.collection(this.sensorCollection).add(sensorData);
 
 			return new Right(sensorData);
 		} catch (err) {
 			console.log(err);
-			return new Left(errors.saveFail());
+			return new Left(errors.saveFail);
 		}
 	}
 }

@@ -1,30 +1,33 @@
 {
-  "compilerOptions": {
-    "target": "es2017",
-    "lib": ["ES7"],
-    "module": "CommonJS",
-    "rootDir": "./src",
-    "baseUrl": "./",
-    "resolveJsonModule": true,
-    "allowUnreachableCode": false,
-    "allowJs": true,
-    "outDir": "./dist",
-    "removeComments": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "strict": true,
-    "noImplicitAny": true,
-    // "noUnusedLocals": true,
-    "skipLibCheck": true,
-    "paths": {
-      // "@controllers/*": ["./src/controllers/*"],
-      "@communicators/*": ["./src/communicators/*"],
-      "@services/*": ["./src/services/*"],
-      "@interfaces/*": ["./src/interfaces/*"],
-      "@utils/*": ["./src/utils/*"]
-    }
-  },
-  "exclude": ["./dist/**/*", "./babel.config.js"]
+	"compilerOptions": {
+		"target": "es2017",
+		"lib": ["ES7"],
+		"module": "CommonJS",
+		"rootDir": "./src",
+		"baseUrl": "./",
+		"resolveJsonModule": true,
+		"allowUnreachableCode": false,
+		"allowJs": true,
+		"outDir": "./dist",
+		"removeComments": true,
+		"esModuleInterop": true,
+		"strictPropertyInitialization": false,
+		"forceConsistentCasingInFileNames": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"strict": true,
+		"noImplicitAny": true,
+		// "noUnusedLocals": true,
+		"skipLibCheck": true,
+		"paths": {
+			"@controllers/*": ["./src/controllers/*"],
+			"@dtos/*": ["./src/dtos/*"],
+			"@communicators/*": ["./src/communicators/*"],
+			"@services/*": ["./src/services/*"],
+			"@interfaces/*": ["./src/interfaces/*"],
+			"@utils/*": ["./src/utils/*"],
+			"@repositories/*": ["./src/repositories/*"]
+		}
+	},
+	"exclude": ["./dist/**/*", "./babel.config.js"]
 }
