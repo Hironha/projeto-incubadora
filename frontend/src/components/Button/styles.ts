@@ -27,7 +27,7 @@ const styles: {
 export const CustomButton = styled(motion.button)<{
 	styleType?: ButtonStyleType;
 }>`
-	padding: 0.3rem 1rem;
+	padding: 0.5rem 1.2rem;
 	border-radius: 5px;
 	border: none;
 	cursor: pointer;

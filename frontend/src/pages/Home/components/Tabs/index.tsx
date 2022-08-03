@@ -29,7 +29,7 @@ export const Tabs = ({ tabs }: TabsProps) => {
 		return tab ? tab.value : TabOptions.CONTROL;
 	});
 
-	const getHandleItemClick = (tab: typeof tabs[0]) => () => {
+	const getHandleItemClick = (tab: Tab) => () => {
 		setSelectedTab(tab.value);
 		navigate(tab.path);
 	};
