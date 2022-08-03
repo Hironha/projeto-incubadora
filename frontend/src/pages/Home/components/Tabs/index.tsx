@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Underline, TabItem, TabList } from "./styles";
 
 import { theme } from "@utils/theme";
@@ -11,14 +11,23 @@ export enum TabOptions {
 	CONTROL = "control",
 }
 
-export const Tabs = () => {
-	const navigate = useNavigate();
-	const [selectedTab, setSelectedTab] = useState(TabOptions.OVERVIEW);
+type Tab = {
+	path: string;
+	value: TabOptions;
+	text: string;
+};
 
-	const tabs = [
-		{ path: "/", value: TabOptions.OVERVIEW, text: "Monitoramento" },
-		{ path: `/${TabOptions.CONTROL}`, value: TabOptions.CONTROL, text: "Controle" },
-	];
+type TabsProps = {
+	tabs: Tab[];
+};
+
+export const Tabs = ({ tabs }: TabsProps) => {
+	const navigate = useNavigate();
+	const location = useLocation();
+	const [selectedTab, setSelectedTab] = useState<TabOptions>(() => {
+		const tab = tabs.find(tab => tab.path === location.pathname);
+		return tab ? tab.value : TabOptions.CONTROL;
+	});
 
 	const getHandleItemClick = (tab: typeof tabs[0]) => () => {
 		setSelectedTab(tab.value);
@@ -37,6 +46,7 @@ export const Tabs = () => {
 					<TabItem
 						key={tab.value}
 						onClick={getHandleItemClick(tab)}
+						initial="default"
 						animate={tab.value === selectedTab ? "selected" : "default"}
 						transition={{ ease: "easeOut", duration: 0.5 }}
 						variants={tabVariants}

@@ -7,10 +7,15 @@ import { PageWrapper } from "./styles";
 import { TabOptions } from "./components/Tabs";
 
 export const Home = () => {
+	const tabs = [
+		{ path: "/", value: TabOptions.OVERVIEW, text: "Monitoramento" },
+		{ path: `/${TabOptions.CONTROL}`, value: TabOptions.CONTROL, text: "Controle" },
+	];
+
 	const homeContainer = (
 		<Layout>
 			<PageWrapper>
-				<Tabs />
+				<Tabs tabs={tabs} />
 				<Outlet />
 			</PageWrapper>
 		</Layout>
