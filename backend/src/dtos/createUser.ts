@@ -9,7 +9,7 @@ export class CreateUserDto
 	extends Validator<ICreateUserInput>
 	implements ICreateUserInput
 {
-	@IsEmail(null, { message: messages.email })
+	@IsEmail({}, { message: messages.email })
 	@IsString({ message: messages.string })
 	@IsNotEmpty({ message: messages.isRequired })
 	email: string;
