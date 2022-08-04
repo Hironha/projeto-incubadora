@@ -30,7 +30,7 @@ export const Overview = () => {
 	const temperatureRef: LottieRef = useRef(null);
 	const [sensorData, setSensorData] = useState<SensorData>();
 	const { ws, reconnect, status } = useWS({
-		url: "ws://192.168.125.150/incubator/listen",
+		url: "ws://192.168.107.62/incubator/listen",
 		reconnect: true,
 	});
 
@@ -74,7 +74,7 @@ export const Overview = () => {
 				<CardWrapper>
 					<LottieIcon animationData={humidityIcon} loop={false} lottieRef={humidityRef} />
 					<CardTitle>Umidade</CardTitle>
-					<CartText>{sensorData ? formatHumidity(sensorData.humidity) : "Não registrado"}</CartText>
+					<CartText>{sensorData ? formatHumidity(sensorData.humidity) : "Não Registrado"}</CartText>
 				</CardWrapper>
 				<CardWrapper>
 					<LottieIcon animationData={temperatureIcon} lottieRef={temperatureRef} loop={false} />

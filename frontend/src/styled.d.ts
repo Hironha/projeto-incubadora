@@ -8,6 +8,7 @@ declare module "styled-components" {
 			lightGray: string;
 			success: string;
 			danger: string;
+			blue: string;
 		};
 		breakpoints: {
 			sm: string;
