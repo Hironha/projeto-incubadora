@@ -12,7 +12,7 @@ enableWS(app);
 
 const port = 80;
 const isDev = process.env.NODE_ENV === 'dev';
-const hostname: string = '192.168.0.2';
+const hostname: string = '192.168.107.62';
 
 app.use(helmet());
 app.use(express.json());

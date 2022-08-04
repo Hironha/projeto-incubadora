@@ -4,16 +4,16 @@
 #include <IncubatorStepper.h>
 #include <WebSocketsClient.h>
 
-#define DHT_PIN 5
+#define DHT_PIN D1
 #define DHT_TYPE DHT11
 
-#define RELAY_PIN 16
+#define RELAY_PIN D0
 
 #define STEPPER_STEP 2
 #define STEPPER_DIR 0
 
-const char *ssid = "M52G";
-const char *password = "bsrb4786";
+const char *ssid = "Redmi Note 9S";
+const char *password = "123456789";
 
 WebSocketsClient webSocket;
 
@@ -37,6 +37,8 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
 void setup() {
   Serial.begin(9600);
 
+  pinMode(RELAY_PIN, OUTPUT);
+
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     Serial.println(".");
@@ -45,14 +47,15 @@ void setup() {
   Serial.print("Connected, IP address: ");
   Serial.println(WiFi.localIP());
 
-  webSocket.begin("192.168.125.150", 80, "/incubator/send");
+  webSocket.begin("192.168.107.62", 80, "/incubator/send");
   webSocket.onEvent(webSocketEvent);
   webSocket.setReconnectInterval(3000);
   webSocket.enableHeartbeat(15000, 3000, 2);
 
-  stepper.setMaxSpeed(100);
-  stepper.setAcceleration(50);
-  stepper.setInterval(30);
+  stepper.setMaxSpeed(80);
+  stepper.setAcceleration(200);
+  stepper.setInterval(10);
+  stepper.setSteps(20);
 }
 
 void loop() {
@@ -71,13 +74,14 @@ void loopSensor() {
   float temperature = dht.readTemperature();
 
   if (isnan(humidity) || isnan(temperature)) {
+    Serial.println("NAN");
     return;
   }
 
-  if(temperature >= 36 || temperature <= 38){
-    digitalWrite(RELAY_PIN, LOW);
-  }else {
+  if(temperature <= 36){
     digitalWrite(RELAY_PIN, HIGH);
+  }else if (temperature >= 38) {
+    digitalWrite(RELAY_PIN, LOW);
   }
 
   if (checkSensorInterval(interval)) {
