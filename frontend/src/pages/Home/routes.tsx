@@ -1,32 +1,35 @@
-import { Outlet, Route, Routes } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
-import { Layout } from "@components/Layout";
+import { PageLayout } from "@components/Layout";
 import { Overview, Tabs } from "./components";
 import { PageWrapper } from "./styles";
 
 import { TabOptions } from "./components/Tabs";
 
-export const Home = () => {
+import type { RouteObject } from "react-router-dom";
+
+export const getRoutes = (): RouteObject[] => {
 	const tabs = [
 		{ path: "/", value: TabOptions.OVERVIEW, text: "Monitoramento" },
 		{ path: `/${TabOptions.CONTROL}`, value: TabOptions.CONTROL, text: "Controle" },
 	];
 
 	const homeContainer = (
-		<Layout>
+		<PageLayout>
 			<PageWrapper>
 				<Tabs tabs={tabs} />
 				<Outlet />
 			</PageWrapper>
-		</Layout>
+		</PageLayout>
 	);
 
-	return (
-		<Routes>
-			<Route path="/" element={homeContainer}>
-				<Route path={`/`} element={<Overview />}></Route>
-				<Route path={`/${TabOptions.CONTROL}`} element={<div>teste</div>}></Route>
-			</Route>
-		</Routes>
-	);
+	return [
+		{
+			element: homeContainer,
+			children: [
+				{ path: "/", element: <Overview /> },
+				{ path: `/${TabOptions.CONTROL}`, element: <div>teste</div> },
+			],
+		},
+	];
 };

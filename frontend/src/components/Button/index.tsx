@@ -1,10 +1,8 @@
 import { forwardRef } from "react";
-import type { MotionProps } from "framer-motion";
 
-import { CustomButton } from "./styles";
+import { CustomButton, type ButtonStyleType } from "./styles";
 
-import type { TargetAndTransition } from "framer-motion";
-import type { ButtonStyleType } from "./styles";
+import type { TargetAndTransition, MotionProps } from "framer-motion";
 
 interface IButtonProps
 	extends MotionProps,
@@ -14,10 +12,11 @@ interface IButtonProps
 		> {
 	children?: React.ReactNode;
 	styleType?: ButtonStyleType;
+	htmlType?: "button" | "submit";
 }
 
 export const Button = forwardRef<HTMLButtonElement, IButtonProps>(
-	({ children, className, whileHover, layout, ...motionProps }, ref) => {
+	({ children, className, whileHover, layout, htmlType, ...motionProps }, ref) => {
 		const _whileHover: TargetAndTransition = {
 			opacity: 0.75,
 			transition: { duration: 0.5 },
@@ -28,6 +27,7 @@ export const Button = forwardRef<HTMLButtonElement, IButtonProps>(
 				layout
 				ref={ref}
 				className={className}
+				type={htmlType || "button"}
 				whileHover={whileHover || _whileHover}
 				{...motionProps}
 			>

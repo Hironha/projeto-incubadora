@@ -6,6 +6,6 @@ type LayoutProps = {
   children?: React.ReactNode;
 };
 
-export const Layout = ({ className, children }: LayoutProps) => {
+export const PageLayout = ({ className, children }: LayoutProps) => {
   return <Main className={className}>{children}</Main>;
 };

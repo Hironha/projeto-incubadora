@@ -1,7 +1,7 @@
 import { ThemeProvider } from "styled-components";
 import { BrowserRouter } from "react-router-dom";
 
-import { Home } from "@pages/Home";
+import { PageRoutes } from "@pages/routes";
 
 import { theme } from "@utils/theme";
 import { GlobalStyle } from "./GlobalStyles";
@@ -11,7 +11,7 @@ function App() {
 		<ThemeProvider theme={theme}>
 			<GlobalStyle />
 			<BrowserRouter>
-				<Home />
+				<PageRoutes />
 			</BrowserRouter>
 		</ThemeProvider>
 	);
