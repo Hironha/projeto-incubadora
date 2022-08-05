@@ -11,6 +11,6 @@ export const theme: DefaultTheme = {
 		blue: "#1900ff",
 	},
 	breakpoints: {
-		sm: "640px",
+		sm: "720px",
 	},
 };

@@ -3,7 +3,7 @@ import Lottie from "lottie-react";
 
 export const Container = styled.div`
 	display: flex;
-	justify-content: center;
+	/* justify-content: center; */
 	flex-direction: column;
 	align-items: center;
 	gap: 1.6rem;
@@ -13,6 +13,7 @@ export const Container = styled.div`
 	margin: 0 auto;
 	padding: 1rem 0;
 	overflow-x: hidden;
+	overflow-y: auto;
 `;
 
 export const ImageLogo = styled.img`
@@ -25,16 +26,18 @@ export const LottieIcon = styled(Lottie)`
 `;
 
 export const CardsList = styled.ul`
-	display: flex;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
 	justify-content: center;
-	align-self: stretch;
+	align-items: center;
 	gap: 2.4rem;
 
 	list-style: none;
 	padding: 1.2rem 0;
 
 	@media (max-width: ${props => props.theme.breakpoints.sm}) {
-		flex-direction: column;
+		grid-template-columns: 1fr;
+		padding-left: 2.4rem;
 	}
 `;
 
