@@ -22,7 +22,8 @@
 			"@utils/*": ["src/utils/*"],
 			"@components/*": ["src/components/*"],
 			"@hooks/*": ["src/hooks/*"],
-			"@assets/*": ["src/assets/*"]
+			"@assets/*": ["src/assets/*"],
+			"@providers/*": ["src/providers/*"]
 		}
 	},
 	"include": ["src"],
