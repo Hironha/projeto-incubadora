@@ -82,7 +82,7 @@ export const useWS = (props: UseWSProps) => {
 		}
 
 		attempts.current = 0;
-		handleReconnection();
+		await handleReconnection();
 	};
 
 	const reconnectWS = async (reason?: string) => {
