@@ -47,7 +47,7 @@ export const FormikInput = ({
 	};
 
 	const getOnChangeInputVariant = () => {
-		if (meta.error) return InputVariants.INVALID;
+		if (meta.error && meta.touched) return InputVariants.INVALID;
 		if (focused) return InputVariants.FOCUS;
 		if (input.value) return InputVariants.VALID;
 		return InputVariants.DEFAULT;
@@ -55,7 +55,7 @@ export const FormikInput = ({
 
 	const getOnBlurInputVariant = () => {
 		if (focused) return InputVariants.FOCUS;
-		if (meta.error) return InputVariants.INVALID;
+		if (meta.error && meta.touched) return InputVariants.INVALID;
 		if (input.value) return InputVariants.VALID;
 		return InputVariants.DEFAULT;
 	};
@@ -83,8 +83,8 @@ export const FormikInput = ({
 	const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
 		setFocused(false);
 		if (valueTrigger === "onBlur") {
-			input.onChange(event);
 			input.onBlur(event);
+			input.onChange(event);
 		}
 
 		onBlur && onBlur(event);
