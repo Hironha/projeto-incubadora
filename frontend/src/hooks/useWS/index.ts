@@ -32,21 +32,25 @@ export const useWS = (props: UseWSProps) => {
 	const attempts = useRef(0);
 	const ws = useRef<WebSocket | null>(null);
 	const retryAuth = useRef(true);
-	const { token, changeToken, clearToken } = useContext(AuthContext);
+	const { getToken } = useContext(AuthContext);
 	const [status, setStatus] = useState<WSStatus>(WSStatus.CONNECTED);
 
-	const accessTokenProtocol = ["access_token", `${token}`];
+	const getAccessTokenProtocol = async () => {
+		const token = await getToken();
+		return ["access_token", `${token}`];
+	};
 
-	const getWS = () => {
+	const getWS = async () => {
 		if (ws.current === null) {
-			ws.current = new WebSocket(url, accessTokenProtocol);
+			ws.current = new WebSocket(url, await getAccessTokenProtocol());
 		}
 		return ws.current;
 	};
 
-	const handleConnectionOpen = () => {
-		setTimeout(() => {
-			if (getWS().readyState === getWS().OPEN) {
+	const handleConnectionOpen = async () => {
+		setTimeout(async () => {
+			const ws = await getWS();
+			if (ws.readyState === ws.OPEN) {
 				setStatus(WSStatus.CONNECTED);
 			}
 		}, 6 * 1000);
@@ -57,11 +61,12 @@ export const useWS = (props: UseWSProps) => {
 		setStatus(WSStatus.DISCONNECTED);
 	};
 
-	const handleReconnection = () => {
-		const newWS = new WebSocket(url, accessTokenProtocol);
-		newWS.onerror = getWS().onerror;
-		newWS.onopen = getWS().onopen;
-		newWS.onmessage = getWS().onmessage;
+	const handleReconnection = async () => {
+		const newWS = new WebSocket(url, await getAccessTokenProtocol());
+		const currWS = await getWS();
+		newWS.onerror = currWS.onerror;
+		newWS.onopen = currWS.onopen;
+		newWS.onmessage = currWS.onmessage;
 		newWS.onopen = handleConnectionOpen;
 		ws.current = newWS;
 		ws.current.onclose = event => reconnectWS(event.reason);
@@ -73,13 +78,10 @@ export const useWS = (props: UseWSProps) => {
 		if (!user) {
 			ws.current = null;
 			setStatus(WSStatus.UNAUTHORIZED);
-			return clearToken();
+			return;
 		}
 
-		const token = await user.getIdToken(true);
-
 		attempts.current = 0;
-		changeToken(token);
 		handleReconnection();
 	};
 
@@ -101,15 +103,21 @@ export const useWS = (props: UseWSProps) => {
 	};
 
 	useEffect(() => {
-		if (reconnect) {
-			getWS().onclose = event => reconnectWS(event.reason);
-		}
+		const initWS = async () => {
+			if (reconnect) {
+				const ws = await getWS();
+				ws.onclose = event => reconnectWS(event.reason);
+			}
+		};
 
-		return () => getWS().close(1000, CloseEvents.PAGE_CHANGED);
+		initWS();
+		return () => {
+			ws.current && ws.current.close(1000, CloseEvents.PAGE_CHANGED);
+		};
 	}, [reconnect]);
 
 	return {
-		ws: getWS(),
+		ws: ws.current,
 		status,
 		reconnect: reconnectWS,
 	};

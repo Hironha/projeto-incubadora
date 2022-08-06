@@ -56,12 +56,14 @@ export const Overview = () => {
 	const handleReconnect = () => reconnect();
 
 	useEffect(() => {
-		ws.onmessage = event => {
-			setSensorData(JSON.parse(event.data));
-			temperatureRef.current?.goToAndPlay(0);
-			humidityRef.current?.goToAndPlay(0);
-		};
-	}, []);
+		if (ws) {
+			ws.onmessage = event => {
+				setSensorData(JSON.parse(event.data));
+				temperatureRef.current?.goToAndPlay(0);
+				humidityRef.current?.goToAndPlay(0);
+			};
+		}
+	}, [ws]);
 
 	return (
 		<Container>
@@ -87,7 +89,7 @@ export const Overview = () => {
 					</CartText>
 				</CardWrapper>
 				<CardWrapper>
-					<LottieIcon animationData={clockIcon} loop={false}/>
+					<LottieIcon animationData={clockIcon} loop={false} />
 					<CardTitle>Intervalo de rotação</CardTitle>
 					<CartText>1 Hora</CartText>
 				</CardWrapper>

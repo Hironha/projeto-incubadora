@@ -1,7 +1,7 @@
-import { Formik, Form } from "formik";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { Formik, Form, Field } from "formik";
 
 import { Button } from "@components/Button";
-import { authStorage } from "@utils/auth";
 
 import { validationSchema } from "./validation";
 
@@ -24,6 +24,8 @@ export const LoginForm = () => {
 
 	const handleSubmit = async (values: LoginFormValues) => {
 		try {
+			const auth = getAuth();
+			await signInWithEmailAndPassword(auth, values.email, values.password);
 			console.log(values);
 		} catch (err) {
 			console.log(err);
@@ -34,18 +36,18 @@ export const LoginForm = () => {
 		<Formik
 			initialValues={initialValues}
 			onSubmit={handleSubmit}
-			validationSchema={validationSchema}
+			// validationSchema={validationSchema}
 		>
 			{() => (
 				<Form>
 					<Container>
 						<LogoContainer src={Logo} alt="Logo incubadora" />
 						<div className="InputContainer">
-							<input type="email" placeholder=" " />
+							<Field type="email" name="email" placeholder=" " />
 							<label>Email</label>
 						</div>
 						<div className="InputContainer">
-							<input type="password" placeholder=" " />
+							<Field type="password" name="password" placeholder=" " />
 							<label>Senha</label>
 						</div>
 

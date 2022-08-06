@@ -16,13 +16,21 @@ export abstract class Communicator {
 }
 
 export const handleRequest = (communicator: Communicator) => {
-	return (ws: WebSocket, res: Request, next: NextFunction) => {
+	return async (ws: WebSocket, res: Request, next: NextFunction) => {
 		communicator.handleRequest(ws, res, next);
 	};
 };
 
 export const handleMiddleware = (communicator: Communicator) => {
-	return (ws: WebSocket, res: Request, next: NextFunction) => {
-		communicator.handleMiddleware(ws, res, next);
+	return async (ws: WebSocket, req: Request, next: NextFunction) => {
+		communicator.handleMiddleware(ws, req, next);
 	};
+};
+
+export const handleAuthorization = async (
+	ws: WebSocket,
+	req: Request,
+	next: NextFunction
+) => {
+	console.log(req.headers['sec-websocket-protocol']);
 };

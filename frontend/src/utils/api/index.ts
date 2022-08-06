@@ -1,8 +1,6 @@
 import axios from "axios";
 import { getAuth } from "firebase/auth";
 
-import { authStorage } from "@utils/auth";
-
 export const api = axios.create({
 	baseURL: "https://api.example.com",
 	timeout: 60 * 1000,
@@ -29,7 +27,6 @@ api.interceptors.response.use(
 		if (error?.response?.data?.code === 403 && !error.config._retry && user) {
 			error.config._retry = true;
 			const token = await user.getIdToken(true);
-			authStorage.setToken(token);
 			api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
 			return api(error.config);
