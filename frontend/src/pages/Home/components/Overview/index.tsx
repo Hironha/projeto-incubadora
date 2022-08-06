@@ -36,6 +36,7 @@ export const Overview = () => {
 		url: "ws://localhost:80/incubator/listen",
 		reconnect: true,
 	});
+	console.log(status)
 
 	const formatCelsius = (temperature: number) => {
 		const formatter = new Intl.NumberFormat("pt-br", {

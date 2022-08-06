@@ -1,11 +1,11 @@
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { Formik, Form, Field } from "formik";
 
-import { Button } from "@components/Button";
-
 import { validationSchema } from "./validation";
 
-import { LogoContainer, Container, ButtonContainer } from "./styles";
+// import { Container } from "./styles";
+
+import { LogoContainer, Container, ButtonContainer, CustomButton, InputContainer, DataInput } from "./styles";
 
 import Logo from "@assets/images/logo.png";
 
@@ -41,23 +41,20 @@ export const LoginForm = () => {
 			{() => (
 				<Form>
 					<Container>
-						<LogoContainer src={Logo} alt="Logo incubadora" />
-						<div className="InputContainer">
-							<Field type="email" name="email" placeholder=" " />
+						<LogoContainer src={Logo} alt="Logo incubadora"/>
+						<InputContainer>
 							<label>Email</label>
-						</div>
-						<div className="InputContainer">
-							<Field type="password" name="password" placeholder=" " />
+							<Field as = {DataInput} type="email" required name="email"/>
+						</InputContainer>
+						<InputContainer>
 							<label>Senha</label>
-						</div>
-
+							<Field as = {DataInput} type="password" placeholder=" " required name="password"/>
+						</InputContainer>
 						<ButtonContainer>
-							<Button htmlType="submit" styleType="primary">
-								Login
-							</Button>
+							<CustomButton htmlType="submit" styleType="primary">Login</CustomButton>
 						</ButtonContainer>
 					</Container>
-				</Form>
+			</Form>
 			)}
 		</Formik>
 	);
