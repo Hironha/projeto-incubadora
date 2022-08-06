@@ -1,18 +1,14 @@
+import { Formik, Form } from "formik";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { Formik, Form, Field } from "formik";
+
+import { FormikInput } from "@components/FormikInput";
 
 import { validationSchema } from "./validation";
 
-import {
-	LogoContainer,
-	Container,
-	ButtonContainer,
-	CustomButton,
-	InputContainer,
-	DataInput,
-} from "./styles";
+import { LogoContainer, Container, ButtonContainer, CustomButton } from "./styles";
 
 import Logo from "@assets/images/logo.png";
+import { LayoutGroup } from "framer-motion";
 
 export type LoginFormValues = {
 	email: string;
@@ -39,20 +35,18 @@ export const LoginForm = () => {
 		<Formik
 			initialValues={initialValues}
 			onSubmit={handleSubmit}
-			// validationSchema={validationSchema}
+			validationSchema={validationSchema}
 		>
 			{() => (
 				<Form>
 					<Container>
 						<LogoContainer src={Logo} alt="Logo incubadora" />
-						<InputContainer>
-							<label>Email</label>
-							<Field as={DataInput} type="email" required name="email" />
-						</InputContainer>
-						<InputContainer>
-							<label>Senha</label>
-							<Field as={DataInput} type="password" placeholder=" " required name="password" />
-						</InputContainer>
+
+						<LayoutGroup>
+							<FormikInput label="Email" name="email" />
+							<FormikInput label="Senha" name="password" />
+						</LayoutGroup>
+
 						<ButtonContainer>
 							<CustomButton htmlType="submit" styleType="primary">
 								Login

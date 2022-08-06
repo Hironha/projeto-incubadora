@@ -6,6 +6,7 @@ export const LoadingContainer = styled.div`
 	align-items: center;
 
 	position: fixed;
+	z-index: 999;
 	height: 100vh;
 	width: 100vw;
 	overflow: none;

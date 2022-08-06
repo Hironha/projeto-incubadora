@@ -1,23 +1,34 @@
-import { type LottieRef } from "lottie-react";
-import { LoadingWrapper, type LoadingSize } from "./styles";
+import Lottie, { type LottieRef } from "lottie-react";
 
 import LoadingLottie from "@assets/lotties/loading-lottie.json";
 import { forwardRef } from "react";
 
+enum LoadingSize {
+	SMALL = "small",
+	MEDIUM = "medium",
+	LARGE = "large",
+}
+
 type LoadingProps = {
 	className?: string;
-	size?: LoadingSize;
+	lottieSize?: `${LoadingSize}`;
 };
 
 export const Loading = forwardRef<LottieRef, LoadingProps>(
-	({ className, size = "medium" }, lottieRef) => {
+	({ className, lottieSize = LoadingSize.MEDIUM }, lottieRef) => {
+		const sizes: { [key in LoadingSize]: number } = {
+			[LoadingSize.SMALL]: 25,
+			[LoadingSize.MEDIUM]: 50,
+			[LoadingSize.LARGE]: 75,
+		};
+
 		return (
-			<LoadingWrapper
+			<Lottie
 				loop
 				lottieRef={lottieRef as LottieRef}
 				className={className}
 				animationData={LoadingLottie}
-				loadingSize={size}
+				size={sizes[lottieSize]}
 			/>
 		);
 	}

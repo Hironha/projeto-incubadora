@@ -6,12 +6,13 @@ declare module "styled-components" {
 			main: string;
 			secondary: string;
 			lightGray: string;
+			gray: string;
 			success: string;
 			danger: string;
 			blue: string;
 		};
 		breakpoints: {
 			sm: string;
-		}
+		};
 	}
 }
