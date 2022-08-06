@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { getAuth } from "@utils/firebase";
+import { getAuth } from "firebase/auth";
 
 import { AuthContext } from "@providers/AuthProvider";
 
@@ -7,6 +7,7 @@ enum WSStatus {
 	CONNECTED = "connected",
 	CONNECTING = "connecting",
 	DISCONNECTED = "disconnected",
+	UNAUTHORIZED = "unauthorized",
 }
 
 enum CloseEvents {
@@ -26,7 +27,7 @@ export const useWS = (props: UseWSProps) => {
 		url,
 		reconnect = true,
 		reconnectionAttempts = 3,
-		reconnectionInterval = 10 * 1000,
+		reconnectionInterval = 5 * 1000,
 	} = props;
 	const attempts = useRef(0);
 	const ws = useRef<WebSocket | null>(null);
@@ -34,17 +35,21 @@ export const useWS = (props: UseWSProps) => {
 	const { token, changeToken, clearToken } = useContext(AuthContext);
 	const [status, setStatus] = useState<WSStatus>(WSStatus.CONNECTED);
 
+	const accessTokenProtocol = ["access_token", `${token}`];
+
 	const getWS = () => {
 		if (ws.current === null) {
-			ws.current = new WebSocket(url, ["access_token", token || ""]);
+			ws.current = new WebSocket(url, accessTokenProtocol);
 		}
 		return ws.current;
 	};
 
 	const handleConnectionOpen = () => {
-		setStatus(WSStatus.CONNECTED);
-		attempts.current = 0;
-		retryAuth.current = true;
+		setTimeout(() => {
+			if (getWS().readyState === getWS().OPEN) {
+				setStatus(WSStatus.CONNECTED);
+			}
+		}, 6 * 1000);
 	};
 
 	const handleMaxReconnections = () => {
@@ -53,7 +58,7 @@ export const useWS = (props: UseWSProps) => {
 	};
 
 	const handleReconnection = () => {
-		const newWS = new WebSocket(url, ["access_token", token || ""]);
+		const newWS = new WebSocket(url, accessTokenProtocol);
 		newWS.onerror = getWS().onerror;
 		newWS.onopen = getWS().onopen;
 		newWS.onmessage = getWS().onmessage;
@@ -65,12 +70,16 @@ export const useWS = (props: UseWSProps) => {
 	const handleUnauthorizedReconnection = async () => {
 		retryAuth.current = false;
 		const user = getAuth().currentUser;
-		if (!user) return clearToken();
+		if (!user) {
+			ws.current = null;
+			setStatus(WSStatus.UNAUTHORIZED);
+			return clearToken();
+		}
 
 		const token = await user.getIdToken(true);
-		changeToken(token);
 
 		attempts.current = 0;
+		changeToken(token);
 		handleReconnection();
 	};
 

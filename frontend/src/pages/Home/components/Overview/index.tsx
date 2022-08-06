@@ -32,10 +32,10 @@ export const Overview = () => {
 	const temperatureRef: LottieRef = useRef(null);
 
 	const [sensorData, setSensorData] = useState<SensorData>();
-	// const { ws, reconnect, status } = useWS({
-	// 	url: "ws://192.168.107.62/incubator/listen",
-	// 	reconnect: true,
-	// });
+	const { ws, reconnect, status } = useWS({
+		url: "ws://localhost:80/incubator/listen",
+		reconnect: true,
+	});
 
 	const formatCelsius = (temperature: number) => {
 		const formatter = new Intl.NumberFormat("pt-br", {
@@ -53,26 +53,26 @@ export const Overview = () => {
 		return `${formatter.format(humidity)}%`;
 	};
 
-	// const handleReconnect = () => reconnect();
+	const handleReconnect = () => reconnect();
 
-	// useEffect(() => {
-	// 	ws.onmessage = event => {
-	// 		setSensorData(JSON.parse(event.data));
-	// 		temperatureRef.current?.goToAndPlay(0);
-	// 		humidityRef.current?.goToAndPlay(0);
-	// 	};
-	// }, []);
+	useEffect(() => {
+		ws.onmessage = event => {
+			setSensorData(JSON.parse(event.data));
+			temperatureRef.current?.goToAndPlay(0);
+			humidityRef.current?.goToAndPlay(0);
+		};
+	}, []);
 
 	return (
 		<Container>
 			<ImageLogo src={Logo} alt="Logo incubadora" />
 			{sensorData && <h3>Atualizado em {new Date(sensorData.sensored_at).toLocaleString()}</h3>}
-			{/* {status === "connecting" && <h3>Conexão perdida. Tentando reconexão...</h3>}
+			{status === "connecting" && <h3>Conexão perdida. Tentando reconexão...</h3>}
 			{status === "disconnected" && (
 				<Button styleType="primary" onClick={handleReconnect}>
 					Reconectar
 				</Button>
-			)} */}
+			)}
 			<CardsList>
 				<CardWrapper>
 					<LottieIcon animationData={humidityIcon} loop={false} lottieRef={humidityRef} />

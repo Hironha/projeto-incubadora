@@ -1,5 +1,6 @@
 import axios from "axios";
-import { getAuth } from "@utils/firebase";
+import { getAuth } from "firebase/auth";
+
 import { authStorage } from "@utils/auth";
 
 export const api = axios.create({

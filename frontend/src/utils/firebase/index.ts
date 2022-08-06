@@ -1,5 +1,4 @@
 import { initializeApp } from "firebase/app";
-import { getAuth as _getAuth } from "firebase/auth";
 
 initializeApp({
 	apiKey: "AIzaSyAbtxd0ojySd-qjOWtehmB1lnc3hVt2rQs",
@@ -9,5 +8,3 @@ initializeApp({
 	appId: "1:925798259177:web:71995b1f39265d122fd378",
 	// storageBucket: "incubadora-1d788.appspot.com",
 });
-
-export const getAuth = () => _getAuth();

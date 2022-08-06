@@ -1,4 +1,3 @@
-import { authStorage } from "@utils/auth";
 import { useState, createContext, useCallback } from "react";
 
 interface IAuthContext {
@@ -14,21 +13,20 @@ type AuthProviderProps = {
 export const AuthContext = createContext<IAuthContext>({} as IAuthContext);
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-	const [token, setToken] = useState<string | null>(authStorage.getToken());
+	const [isAuthInitialized, setIsAuthInitialized] = useState(false);
+	const [token, setToken] = useState<string | null>(null);
 
 	const changeToken = useCallback((token: string) => {
-		authStorage.setToken(token);
 		setToken(token);
 	}, []);
 
 	const clearToken = useCallback(() => {
 		setToken(null);
-		localStorage.clear();
 	}, []);
 
 	return (
 		<AuthContext.Provider value={{ token, changeToken, clearToken }}>
-			{children}
+			{isAuthInitialized ? children : null}
 		</AuthContext.Provider>
 	);
 };
