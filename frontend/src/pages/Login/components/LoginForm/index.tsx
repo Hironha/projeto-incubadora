@@ -3,13 +3,16 @@ import { Formik, Form, Field } from "formik";
 
 import { validationSchema } from "./validation";
 
-// import { Container } from "./styles";
-
-import { LogoContainer, Container, ButtonContainer, CustomButton, InputContainer, DataInput } from "./styles";
+import {
+	LogoContainer,
+	Container,
+	ButtonContainer,
+	CustomButton,
+	InputContainer,
+	DataInput,
+} from "./styles";
 
 import Logo from "@assets/images/logo.png";
-
-import "./styles.css";
 
 export type LoginFormValues = {
 	email: string;
@@ -41,20 +44,22 @@ export const LoginForm = () => {
 			{() => (
 				<Form>
 					<Container>
-						<LogoContainer src={Logo} alt="Logo incubadora"/>
+						<LogoContainer src={Logo} alt="Logo incubadora" />
 						<InputContainer>
 							<label>Email</label>
-							<Field as = {DataInput} type="email" required name="email"/>
+							<Field as={DataInput} type="email" required name="email" />
 						</InputContainer>
 						<InputContainer>
 							<label>Senha</label>
-							<Field as = {DataInput} type="password" placeholder=" " required name="password"/>
+							<Field as={DataInput} type="password" placeholder=" " required name="password" />
 						</InputContainer>
 						<ButtonContainer>
-							<CustomButton htmlType="submit" styleType="primary">Login</CustomButton>
+							<CustomButton htmlType="submit" styleType="primary">
+								Login
+							</CustomButton>
 						</ButtonContainer>
 					</Container>
-			</Form>
+				</Form>
 			)}
 		</Formik>
 	);

@@ -1,5 +1,8 @@
-import { browserSessionPersistence, getAuth, setPersistence } from "firebase/auth";
 import { useState, createContext, useEffect, useCallback } from "react";
+import { browserSessionPersistence, getAuth, setPersistence } from "firebase/auth";
+
+import { Loading } from "@components/Loading";
+import { LoadingContainer } from "./styles";
 
 interface IAuthContext {
 	verifyAuthentication: () => boolean;
@@ -36,9 +39,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 		initAuth();
 	}, []);
 
+	if (!isAuthInitialized) {
+		return (
+			<LoadingContainer>
+				<Loading />
+			</LoadingContainer>
+		);
+	}
+
 	return (
 		<AuthContext.Provider value={{ verifyAuthentication, getToken }}>
-			{isAuthInitialized ? children : null}
+			{children}
 		</AuthContext.Provider>
 	);
 };
