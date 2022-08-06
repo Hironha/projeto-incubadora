@@ -33,6 +33,7 @@ export const LoginForm = () => {
 
 	return (
 		<Formik
+			validateOnBlur
 			initialValues={initialValues}
 			onSubmit={handleSubmit}
 			validationSchema={validationSchema}

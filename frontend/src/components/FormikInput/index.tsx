@@ -32,12 +32,12 @@ export const FormikInput = ({
 	onFocus,
 	valueTrigger = "onBlur",
 }: FormikInputProps) => {
-	const [input, meta] = useField(name);
+	const [input, meta, helpers] = useField(name);
 	const [focused, setFocused] = useState(false);
 
 	const inputID = id || name;
 
-	const showError = !!meta.error;
+	const showError = meta.touched && !!meta.error;
 
 	const inputVariants: Variants = {
 		[InputVariants.FOCUS]: { border: `2px ${theme.colors.main} solid` },
@@ -71,8 +71,8 @@ export const FormikInput = ({
 	})();
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		onChange && onChange(event);
 		valueTrigger === "onChange" && input.onChange(event);
+		onChange && onChange(event);
 	};
 
 	const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
@@ -81,9 +81,13 @@ export const FormikInput = ({
 	};
 
 	const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-		onBlur && onBlur(event);
 		setFocused(false);
-		valueTrigger === "onBlur" && input.onChange(event);
+		if (valueTrigger === "onBlur") {
+			input.onChange(event);
+			input.onBlur(event);
+		}
+
+		onBlur && onBlur(event);
 	};
 
 	return (
