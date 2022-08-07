@@ -36,7 +36,7 @@ export class ListenIncubator extends Communicator {
 			if (!token) throw new Error();
 
 			const auth = getAuth();
-			await auth.verifyIdToken(token);
+			await auth.verifyIdToken(token, true);
 			next();
 		} catch (err) {
 			console.log('user unauthorized');
