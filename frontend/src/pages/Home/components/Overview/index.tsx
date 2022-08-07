@@ -21,9 +21,15 @@ import calendarIcon from "@assets/lotties/calendar-icon.json";
 
 import type { LottieRef } from "lottie-react";
 
+enum BulbStatus {
+	ON = "on",
+	OFF = "off",
+}
+
 type SensorData = {
 	humidity: number;
 	temperature: number;
+	bulbStatus: BulbStatus;
 	sensored_at: string;
 };
 
@@ -32,11 +38,10 @@ export const Overview = () => {
 	const temperatureRef: LottieRef = useRef(null);
 
 	const [sensorData, setSensorData] = useState<SensorData>();
-	const { ws, reconnect, status } = useWS({
-		url: "ws://localhost:80/incubator/listen",
+	const { getWS, reconnect, status, unmountWS } = useWS({
+		url: "ws://192.168.0.2:80/incubator/listen",
 		reconnect: true,
 	});
-	console.log(status)
 
 	const formatCelsius = (temperature: number) => {
 		const formatter = new Intl.NumberFormat("pt-br", {
@@ -57,14 +62,19 @@ export const Overview = () => {
 	const handleReconnect = () => reconnect();
 
 	useEffect(() => {
-		if (ws) {
+		const initWS = async () => {
+			const ws = await getWS();
 			ws.onmessage = event => {
-				setSensorData(JSON.parse(event.data));
+				setSensorData(JSON.parse(event.data).data);
 				temperatureRef.current?.goToAndPlay(0);
 				humidityRef.current?.goToAndPlay(0);
 			};
-		}
-	}, [ws]);
+		};
+
+		initWS();
+
+		return () => unmountWS();
+	}, [getWS, unmountWS]);
 
 	return (
 		<Container>
@@ -79,15 +89,20 @@ export const Overview = () => {
 			<CardsList>
 				<CardWrapper>
 					<LottieIcon animationData={humidityIcon} loop={false} lottieRef={humidityRef} />
-					<CardTitle>Umidade</CardTitle>
+					<CardTitle>Umidade atual</CardTitle>
 					<CartText>{sensorData ? formatHumidity(sensorData.humidity) : "Não Registrado"}</CartText>
 				</CardWrapper>
 				<CardWrapper>
 					<LottieIcon animationData={temperatureIcon} lottieRef={temperatureRef} loop={false} />
-					<CardTitle>Temperatura</CardTitle>
+					<CardTitle>Temperatura atual</CardTitle>
 					<CartText>
 						{sensorData ? formatCelsius(sensorData.temperature) : "Não Registrado"}
 					</CartText>
+				</CardWrapper>
+				<CardWrapper>
+					<LottieIcon animationData={clockIcon} loop={false} />
+					<CardTitle>Estado da lâmpada</CardTitle>
+					<CartText>{sensorData?.bulbStatus || "Não Registrado"}</CartText>
 				</CardWrapper>
 				<CardWrapper>
 					<LottieIcon animationData={clockIcon} loop={false} />

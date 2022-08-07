@@ -1,5 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
-import { getAuth } from "firebase/auth";
+import { useCallback, useContext, useRef, useState } from "react";
 
 import { AuthContext } from "@providers/AuthProvider";
 
@@ -32,7 +31,7 @@ export const useWS = (props: UseWSProps) => {
 	const attempts = useRef(0);
 	const ws = useRef<WebSocket | null>(null);
 	const retryAuth = useRef(true);
-	const { getToken } = useContext(AuthContext);
+	const { getToken, verifyAuthentication } = useContext(AuthContext);
 	const [status, setStatus] = useState<WSStatus>(WSStatus.CONNECTED);
 
 	const getAccessTokenProtocol = async () => {
@@ -40,12 +39,19 @@ export const useWS = (props: UseWSProps) => {
 		return ["access_token", `${token}`];
 	};
 
-	const getWS = async () => {
+	const getWS = useCallback(async () => {
 		if (ws.current === null) {
 			ws.current = new WebSocket(url, await getAccessTokenProtocol());
+			if (reconnect) {
+				ws.current.onclose = event => reconnectWS(event.reason);
+			}
 		}
 		return ws.current;
-	};
+	}, [reconnect]);
+
+	const unmountWS = useCallback(() => {
+		ws.current && ws.current.close(1000, CloseEvents.PAGE_CHANGED);
+	}, []);
 
 	const handleConnectionOpen = async () => {
 		setTimeout(async () => {
@@ -61,6 +67,20 @@ export const useWS = (props: UseWSProps) => {
 		setStatus(WSStatus.DISCONNECTED);
 	};
 
+	const handleUnauthorizedReconnection = async () => {
+		retryAuth.current = false;
+		const isAuthenticated = verifyAuthentication();
+
+		if (!isAuthenticated) {
+			ws.current = null;
+			setStatus(WSStatus.UNAUTHORIZED);
+			return;
+		}
+
+		attempts.current = 0;
+		await handleReconnection();
+	};
+
 	const handleReconnection = async () => {
 		const newWS = new WebSocket(url, await getAccessTokenProtocol());
 		const currWS = await getWS();
@@ -72,20 +92,7 @@ export const useWS = (props: UseWSProps) => {
 		ws.current.onclose = event => reconnectWS(event.reason);
 	};
 
-	const handleUnauthorizedReconnection = async () => {
-		retryAuth.current = false;
-		const user = getAuth().currentUser;
-		if (!user) {
-			ws.current = null;
-			setStatus(WSStatus.UNAUTHORIZED);
-			return;
-		}
-
-		attempts.current = 0;
-		await handleReconnection();
-	};
-
-	const reconnectWS = async (reason?: string) => {
+	const reconnectWS = useCallback(async (reason?: string) => {
 		if (reason === CloseEvents.PAGE_CHANGED) return;
 
 		if (reason === CloseEvents.UNAUTHORIZED && retryAuth.current) {
@@ -100,24 +107,11 @@ export const useWS = (props: UseWSProps) => {
 		setStatus(WSStatus.CONNECTING);
 
 		setTimeout(() => handleReconnection(), reconnectionInterval);
-	};
-
-	useEffect(() => {
-		const initWS = async () => {
-			if (reconnect) {
-				const ws = await getWS();
-				ws.onclose = event => reconnectWS(event.reason);
-			}
-		};
-
-		initWS();
-		return () => {
-			ws.current && ws.current.close(1000, CloseEvents.PAGE_CHANGED);
-		};
-	}, [reconnect]);
+	}, []);
 
 	return {
-		ws: ws.current,
+		getWS,
+		unmountWS,
 		status,
 		reconnect: reconnectWS,
 	};

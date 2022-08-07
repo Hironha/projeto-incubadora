@@ -4,7 +4,10 @@ import { IncubatorRepository } from '@repositories/incubator';
 import { WSDataEntity } from '@utils/entity/WSDataEntity';
 
 import type { ISensorData } from '@interfaces/models/sensorData';
-import type { IMonitoringDataInput } from '@interfaces/ios/monitoringData';
+import type {
+	IMonitoringDataInput,
+	IMonitoringDataOutput,
+} from '@interfaces/ios/monitoringData';
 export class CommunicateIncubatorService {
 	private listeners: Map<number, WebSocket> = new Map();
 	private timeout: NodeJS.Timeout | null = null;
@@ -39,12 +42,14 @@ export class CommunicateIncubatorService {
 		});
 
 		ws.on('message', async (message, isBinary) => {
-			const sensorData = new WSDataEntity<IMonitoringDataInput>(
+			const sensorDataEntity = new WSDataEntity<IMonitoringDataInput>(
 				message,
 				isBinary
 			);
-
-			await this.broadcast(sensorData);
+			const sensorDataJSON = await sensorDataEntity.json();
+			if (sensorDataJSON) {
+				await this.broadcast(sensorDataJSON);
+			}
 		});
 	}
 
@@ -66,21 +71,25 @@ export class CommunicateIncubatorService {
 		}, this.ttl);
 	}
 
-	private async broadcast(payload: WSDataEntity<IMonitoringDataInput>) {
-		const payloadStringified = await payload.string();
+	private async broadcast(input: IMonitoringDataInput) {
+		const payload = this.formatPayload(input);
+		const payloadStringified = JSON.stringify(payload);
 		if (!payloadStringified) return;
 
 		this.listeners.forEach((ws) => ws.send(payloadStringified));
 
-		const payloadJSON = await payload.json();
-		if (!payloadJSON) return;
-
-		const sensorData = this.getSensorData(payloadJSON);
+		const sensorData = this.getSensorData(input);
 
 		this.sensoredData.push(sensorData);
 		if (this.sensoredData.length >= this.maxSensoredData) {
 			await this.saveSensorData();
 		}
+	}
+
+	private formatPayload(input: IMonitoringDataInput) {
+		const clone = { ...input } as IMonitoringDataOutput;
+		clone.data.sensored_at = new Date().toUTCString();
+		return clone;
 	}
 
 	private async saveSensorData() {
@@ -116,8 +125,8 @@ export class CommunicateIncubatorService {
 
 	private getSensorData(wsData: IMonitoringDataInput): ISensorData {
 		return {
-			humidity: wsData.humidity,
-			temperature: wsData.temperature,
+			humidity: wsData.data.humidity,
+			temperature: wsData.data.temperature,
 			sensored_at: new Date().toUTCString(),
 		};
 	}

@@ -12,8 +12,13 @@
 #define STEPPER_STEP 2
 #define STEPPER_DIR 0
 
-const char *ssid = "Redmi Note 9S";
-const char *password = "123456789";
+#define MONITORING_EVENT "monitoring"
+
+#define BULB_ON "on"
+#define BULB_OFF "off"
+
+const char *ssid = "AP_60";
+const char *password = "145632789";
 
 WebSocketsClient webSocket;
 
@@ -47,7 +52,7 @@ void setup() {
   Serial.print("Connected, IP address: ");
   Serial.println(WiFi.localIP());
 
-  webSocket.begin("192.168.107.62", 80, "/incubator/send");
+  webSocket.begin("192.168.0.2", 80, "/incubator/send");
   webSocket.onEvent(webSocketEvent);
   webSocket.setReconnectInterval(3000);
   webSocket.enableHeartbeat(15000, 3000, 2);
@@ -70,6 +75,7 @@ void loop() {
 
 void loopSensor() {
   const static time_t interval = 5;
+  /*
   float humidity = dht.readHumidity();
   float temperature = dht.readTemperature();
 
@@ -78,15 +84,17 @@ void loopSensor() {
     return;
   }
 
+  
   if(temperature <= 36){
     digitalWrite(RELAY_PIN, HIGH);
   }else if (temperature >= 38) {
     digitalWrite(RELAY_PIN, LOW);
   }
+  */
 
   if (checkSensorInterval(interval)) {
-    Serial.printf("%.2f   %.2f\n", humidity, temperature);
-    sendSensorData(humidity, temperature);
+    //Serial.printf("%.2f   %.2f\n", humidity, temperature);
+    sendSensorData(78.3, 26.5);
   }
 }
 
@@ -94,8 +102,10 @@ void sendSensorData(float humidity, float temperature) {
   String buffer;
   StaticJsonDocument<256> doc;
 
-  doc["humidity"] = humidity;
-  doc["temperature"] = temperature;
+  doc["eventName"] = MONITORING_EVENT;
+  doc["data"]["bulbStatus"] = BULB_ON;
+  doc["data"]["humidity"] = humidity;
+  doc["data"]["temperature"] = temperature;
   serializeJson(doc, buffer);
 
   webSocket.sendTXT(buffer);
