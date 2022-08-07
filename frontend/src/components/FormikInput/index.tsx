@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useField } from "formik";
+import { useField, ErrorMessage } from "formik";
 import { AnimatePresence, LayoutGroup, type Variants } from "framer-motion";
 
 import { DataInput, Container, CustomErrorMessage, Label, InputContainer } from "./styles";
@@ -36,8 +36,6 @@ export const FormikInput = ({
 	const [focused, setFocused] = useState(false);
 
 	const inputID = id || name;
-
-	const showError = meta.touched && !!meta.error;
 
 	const inputVariants: Variants = {
 		[InputVariants.FOCUS]: { border: `2px ${theme.colors.main} solid` },
@@ -82,8 +80,8 @@ export const FormikInput = ({
 
 	const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
 		setFocused(false);
+		input.onBlur(event);
 		if (valueTrigger === "onBlur") {
-			input.onBlur(event);
 			input.onChange(event);
 		}
 
@@ -112,16 +110,19 @@ export const FormikInput = ({
 				</InputContainer>
 
 				<AnimatePresence presenceAffectsLayout>
-					{showError && (
-						<CustomErrorMessage
-							layout="position"
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							exit={{ opacity: 0 }}
-						>
-							{meta.error}
-						</CustomErrorMessage>
-					)}
+					<ErrorMessage
+						children={error => (
+							<CustomErrorMessage
+								layout="position"
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								exit={{ opacity: 0 }}
+							>
+								{error}
+							</CustomErrorMessage>
+						)}
+						name={name}
+					/>
 				</AnimatePresence>
 			</LayoutGroup>
 		</Container>

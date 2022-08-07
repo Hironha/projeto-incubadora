@@ -36,7 +36,6 @@ type SensorData = {
 export const Overview = () => {
 	const humidityRef: LottieRef = useRef(null);
 	const temperatureRef: LottieRef = useRef(null);
-
 	const [sensorData, setSensorData] = useState<SensorData>();
 	const { getWS, reconnect, status, unmountWS } = useWS({
 		url: "ws://192.168.0.2:80/incubator/listen",

@@ -1,7 +1,8 @@
-import Lottie, { type LottieRef } from "lottie-react";
+import { theme } from "@utils/theme";
 
-import LoadingLottie from "@assets/lotties/loading-lottie.json";
-import { forwardRef } from "react";
+import { Loader } from "./styles";
+
+import type { DefaultTheme } from "styled-components";
 
 enum LoadingSize {
 	SMALL = "small",
@@ -11,25 +12,49 @@ enum LoadingSize {
 
 type LoadingProps = {
 	className?: string;
-	lottieSize?: `${LoadingSize}`;
+	color?: keyof DefaultTheme["colors"] | (keyof DefaultTheme["colors"])[];
+	size?: `${LoadingSize}`;
 };
 
-export const Loading = forwardRef<LottieRef, LoadingProps>(
-	({ className, lottieSize = LoadingSize.MEDIUM }, lottieRef) => {
-		const sizes: { [key in LoadingSize]: number } = {
-			[LoadingSize.SMALL]: 25,
-			[LoadingSize.MEDIUM]: 50,
-			[LoadingSize.LARGE]: 75,
-		};
+export const Loading = ({ className, color = "main", size = "medium" }: LoadingProps) => {
+	const sizes: { [key in LoadingSize]: number | string } = {
+		[LoadingSize.SMALL]: "1.6rem",
+		[LoadingSize.MEDIUM]: "3.2rem",
+		[LoadingSize.LARGE]: "4.8rem",
+	};
 
-		return (
-			<Lottie
-				loop
-				lottieRef={lottieRef as LottieRef}
-				className={className}
-				animationData={LoadingLottie}
-				size={sizes[lottieSize]}
-			/>
-		);
-	}
-);
+	const timesLength = Array.isArray(color) ? color.length : 1;
+
+	const times = [0].concat(new Array(timesLength).fill(0).map((_, index) => 1 / (index + 1)));
+
+	const rotate = [30].concat(
+		new Array(timesLength).fill(0).map((_, index) => 30 + 360 / (index + 1))
+	);
+
+	const borderTopColor = (() => {
+		if (Array.isArray(color)) return color.map(c => theme.colors[c]);
+		return new Array(timesLength + 1).fill(0).map(() => theme.colors[color]);
+	})();
+
+	return (
+		<Loader
+			className={className}
+			initial={{
+				width: sizes[size],
+				height: sizes[size],
+				borderTopWidth: sizes[size] === sizes[LoadingSize.SMALL] ? 2 : undefined,
+			}}
+			animate={{
+				rotate,
+				borderTopColor,
+			}}
+			transition={{
+				duration: 1,
+				times,
+				repeat: Infinity,
+				repeatDelay: 0,
+				ease: "linear",
+			}}
+		/>
+	);
+};

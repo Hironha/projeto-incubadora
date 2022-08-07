@@ -14,11 +14,6 @@ export const Container = styled.div`
 	align-items: center;
 `;
 
-export const ButtonContainer = styled.div`
-	margin-top: 2rem;
-`;
-
 export const CustomButton = styled(Button)`
-	/* padding: 1rem; */
-	width: 80px;
+	margin-top: 2.4rem;
 `;

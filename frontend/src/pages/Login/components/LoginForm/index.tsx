@@ -1,14 +1,16 @@
 import { Formik, Form } from "formik";
+import { useNavigate } from "react-router-dom";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 import { FormikInput } from "@components/FormikInput";
 
 import { validationSchema } from "./validation";
 
-import { LogoContainer, Container, ButtonContainer, CustomButton } from "./styles";
+import { LogoContainer, Container, CustomButton } from "./styles";
 
 import Logo from "@assets/images/logo.png";
 import { LayoutGroup } from "framer-motion";
+import { Loading } from "@components/Loading";
 
 export type LoginFormValues = {
 	email: string;
@@ -16,6 +18,8 @@ export type LoginFormValues = {
 };
 
 export const LoginForm = () => {
+	const navigate = useNavigate();
+
 	const initialValues: LoginFormValues = {
 		email: "",
 		password: "",
@@ -25,7 +29,10 @@ export const LoginForm = () => {
 		try {
 			const auth = getAuth();
 			await signInWithEmailAndPassword(auth, values.email, values.password);
-			console.log(values);
+
+			setTimeout(() => {
+				navigate("/");
+			}, 500);
 		} catch (err) {
 			console.log(err);
 		}
@@ -34,11 +41,12 @@ export const LoginForm = () => {
 	return (
 		<Formik
 			validateOnBlur
+			validateOnMount
 			initialValues={initialValues}
 			onSubmit={handleSubmit}
 			validationSchema={validationSchema}
 		>
-			{() => (
+			{({ isSubmitting, isValid }) => (
 				<Form>
 					<Container>
 						<LogoContainer src={Logo} alt="Logo incubadora" />
@@ -46,13 +54,21 @@ export const LoginForm = () => {
 						<LayoutGroup>
 							<FormikInput label="Email" name="email" />
 							<FormikInput label="Senha" name="password" />
-						</LayoutGroup>
 
-						<ButtonContainer>
-							<CustomButton htmlType="submit" styleType="primary">
-								Login
+							<CustomButton
+								htmlType="submit"
+								styleType={isValid ? "primary" : "secondary"}
+								disabled={!isValid}
+							>
+								{isSubmitting ? (
+									<>
+										<Loading color="lightGray" size="small" /> Login
+									</>
+								) : (
+									"Login"
+								)}
 							</CustomButton>
-						</ButtonContainer>
+						</LayoutGroup>
 					</Container>
 				</Form>
 			)}

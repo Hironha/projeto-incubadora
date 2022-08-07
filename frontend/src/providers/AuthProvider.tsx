@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 	if (!isAuthInitialized) {
 		return (
 			<LoadingContainer>
-				<Loading />
+				<Loading size="large" />
 			</LoadingContainer>
 		);
 	}
