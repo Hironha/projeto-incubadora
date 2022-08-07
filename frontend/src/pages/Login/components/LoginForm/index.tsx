@@ -40,7 +40,7 @@ export const LoginForm = () => {
 
 	return (
 		<Formik
-			validateOnBlur
+			validateOnChange
 			validateOnMount
 			initialValues={initialValues}
 			onSubmit={handleSubmit}
@@ -52,8 +52,8 @@ export const LoginForm = () => {
 						<LogoContainer src={Logo} alt="Logo incubadora" />
 
 						<LayoutGroup>
-							<FormikInput label="Email" name="email" />
-							<FormikInput label="Senha" name="password" />
+							<FormikInput label="Email" name="email" valueTrigger="onChange" />
+							<FormikInput label="Senha" name="password" valueTrigger="onChange" />
 
 							<CustomButton
 								htmlType="submit"
