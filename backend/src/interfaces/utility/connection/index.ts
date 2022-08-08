@@ -4,4 +4,11 @@ export enum ConnectionCloseEvent {
 
 export enum WSDataEvent {
 	MONITORING = 'monitoring',
+	CONNECTION = 'connection',
+	INIT_INCUBATION = 'initIncubation'
 }
+
+export type WSMessage<T> = {
+	eventName: WSDataEvent;
+	data: T;
+};

@@ -15,6 +15,7 @@ enum InputVariants {
 
 type FormikInputProps = {
 	name: string;
+	placeholder?: string;
 	id?: string;
 	valueTrigger?: "onChange" | "onBlur";
 	onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void | Promise<void>;
@@ -27,6 +28,7 @@ export const FormikInput = ({
 	id,
 	label,
 	name,
+	placeholder,
 	onChange,
 	onBlur,
 	onFocus,
@@ -103,6 +105,7 @@ export const FormikInput = ({
 				>
 					<DataInput
 						id={inputID}
+						placeholder={placeholder}
 						onChange={handleChange}
 						onBlur={handleBlur}
 						onFocus={handleFocus}

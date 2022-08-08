@@ -5,7 +5,7 @@ import { LoginForm } from "./components";
 import type { RouteObject } from "react-router-dom";
 import { PageWrapper } from "@pages/Home/styles";
 
-export const getRoutes = (): RouteObject[] => [
+export const useLoginRoutes = (): RouteObject[] => [
 	{
 		element: (
 			<PageLayout>

@@ -79,8 +79,8 @@ export const Overview = () => {
 		<Container>
 			<ImageLogo src={Logo} alt="Logo incubadora" />
 			{sensorData && <h3>Atualizado em {new Date(sensorData.sensored_at).toLocaleString()}</h3>}
-			{status === "connecting" && <h3>Conexão perdida. Tentando reconexão...</h3>}
-			{status === "disconnected" && (
+			{status.value === "connecting" && <h3>Conexão perdida. Tentando reconexão...</h3>}
+			{status.value === "disconnected" && (
 				<Button styleType="primary" onClick={handleReconnect}>
 					Reconectar
 				</Button>

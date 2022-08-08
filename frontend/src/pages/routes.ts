@@ -1,10 +1,10 @@
 import { useRoutes } from "react-router-dom";
 
-import { getRoutes as getLoginRoutes } from "./Login/routes";
-import { getRoutes as getHomeRoutes } from "./Home/routes";
+import { useLoginRoutes } from "./Login/routes";
+import { useHomeRoutes } from "./Home/routes";
 
 export const PageRoutes = () => {
-	const routes = useRoutes([...getHomeRoutes(), ...getLoginRoutes()]);
+	const routes = useRoutes([...useHomeRoutes(), ...useLoginRoutes()]);
 
 	return routes;
 };

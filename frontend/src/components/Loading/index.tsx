@@ -16,7 +16,7 @@ type LoadingProps = {
 	size?: `${LoadingSize}`;
 };
 
-export const Loading = ({ className, color = "main", size = "medium" }: LoadingProps) => {
+export const Loading = ({ className, color = ["main", "blue"], size = "medium" }: LoadingProps) => {
 	const sizes: { [key in LoadingSize]: number | string } = {
 		[LoadingSize.SMALL]: "1.6rem",
 		[LoadingSize.MEDIUM]: "3.2rem",
@@ -25,14 +25,22 @@ export const Loading = ({ className, color = "main", size = "medium" }: LoadingP
 
 	const timesLength = Array.isArray(color) ? color.length : 1;
 
-	const times = [0].concat(new Array(timesLength).fill(0).map((_, index) => 1 / (index + 1)));
+	const times = [0].concat(
+		new Array(timesLength)
+			.fill(0)
+			.map((_, index) => 1 / (index + 1))
+			.reverse()
+	);
 
 	const rotate = [30].concat(
-		new Array(timesLength).fill(0).map((_, index) => 30 + 360 / (index + 1))
+		new Array(timesLength)
+			.fill(0)
+			.map((_, index) => 30 + 360 / (index + 1))
+			.reverse()
 	);
 
 	const borderTopColor = (() => {
-		if (Array.isArray(color)) return color.map(c => theme.colors[c]);
+		if (Array.isArray(color)) return color.map(c => theme.colors[c]).concat(theme.colors[color[0]]);
 		return new Array(timesLength + 1).fill(0).map(() => theme.colors[color]);
 	})();
 

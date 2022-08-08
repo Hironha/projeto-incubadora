@@ -2,7 +2,7 @@ import { useCallback, useContext, useRef, useState } from "react";
 
 import { AuthContext } from "@providers/AuthProvider";
 
-enum WSStatus {
+export enum WSStatus {
 	CONNECTED = "connected",
 	CONNECTING = "connecting",
 	DISCONNECTED = "disconnected",
@@ -32,7 +32,7 @@ export const useWS = (props: UseWSProps) => {
 	const ws = useRef<WebSocket | null>(null);
 	const retryAuth = useRef(true);
 	const { getToken, verifyAuthentication } = useContext(AuthContext);
-	const [status, setStatus] = useState<WSStatus>(WSStatus.CONNECTED);
+	const [status, setStatus] = useState<WSStatus>(WSStatus.CONNECTING);
 
 	const getAccessTokenProtocol = async () => {
 		const token = await getToken();
@@ -52,15 +52,6 @@ export const useWS = (props: UseWSProps) => {
 	const unmountWS = useCallback(() => {
 		ws.current && ws.current.close(1000, CloseEvents.PAGE_CHANGED);
 	}, []);
-
-	const handleConnectionOpen = async () => {
-		setTimeout(async () => {
-			const ws = await getWS();
-			if (ws.readyState === ws.OPEN) {
-				setStatus(WSStatus.CONNECTED);
-			}
-		}, 6 * 1000);
-	};
 
 	const handleMaxReconnections = () => {
 		attempts.current = 0;
@@ -87,7 +78,7 @@ export const useWS = (props: UseWSProps) => {
 		newWS.onerror = currWS.onerror;
 		newWS.onopen = currWS.onopen;
 		newWS.onmessage = currWS.onmessage;
-		newWS.onopen = handleConnectionOpen;
+		newWS.onopen = currWS.onopen;
 		ws.current = newWS;
 		ws.current.onclose = event => reconnectWS(event.reason);
 	};
@@ -112,7 +103,10 @@ export const useWS = (props: UseWSProps) => {
 	return {
 		getWS,
 		unmountWS,
-		status,
+		status: {
+			value: status,
+			setStatus,
+		},
 		reconnect: reconnectWS,
 	};
 };

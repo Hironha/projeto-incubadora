@@ -3,11 +3,14 @@ import type * as WebSocket from 'ws';
 import { IncubatorRepository } from '@repositories/incubator';
 import { WSDataEntity } from '@utils/entity/WSDataEntity';
 
+import { WSDataEvent } from '@interfaces/utility/connection';
+
 import type { ISensorData } from '@interfaces/models/sensorData';
 import type {
 	IMonitoringDataInput,
 	IMonitoringDataOutput,
-} from '@interfaces/ios/monitoringData';
+} from '@interfaces/ios/ws/monitoringData';
+import type { IConnectionDataOuput } from '@interfaces/ios/ws/connectionData';
 export class CommunicateIncubatorService {
 	private listeners: Map<number, WebSocket> = new Map();
 	private timeout: NodeJS.Timeout | null = null;
@@ -56,7 +59,16 @@ export class CommunicateIncubatorService {
 	public addListener(ws: WebSocket) {
 		const key = this.listeners.size;
 		this.listeners.set(key, ws);
+		const connectionData: IConnectionDataOuput = {
+			eventName: WSDataEvent.CONNECTION,
+			data: true,
+		};
 
+		ws.send(JSON.stringify(connectionData));
+		ws.on('message', async (message, isBinary) => {
+			const data = new WSDataEntity<any>(message, isBinary);
+			console.log(await data.json());
+		});
 		ws.onclose = () => this.listeners.delete(key);
 	}
 
