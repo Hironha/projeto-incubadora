@@ -16,6 +16,11 @@ export const CategoryInputsWrapper = styled.div`
 	display: flex;
 	align-self: center;
 	gap: 2.4rem;
+
+	@media (max-width: ${props => props.theme.breakpoints.sm}) {
+		flex-direction: column;
+		gap: 1.6rem;
+	}
 `;
 
 export const CategoryWrapper = styled.div`

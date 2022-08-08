@@ -38,7 +38,7 @@ export const ControlForm = ({ onSubmit }: ControlFormProps) => {
 		onSubmit && onSubmit(values);
 	};
 
-	const handleNumberInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+	const maskNumberInput = (event: React.ChangeEvent<HTMLInputElement>) => {
 		event.target.value = event.target.value.replace(/\D+/g, "");
 	};
 
@@ -55,6 +55,7 @@ export const ControlForm = ({ onSubmit }: ControlFormProps) => {
 				<Form>
 					<Container>
 						<Title>Configuração da Incubadora</Title>
+
 						<CategoryWrapper>
 							<CategoryTitle>Controle do motor</CategoryTitle>
 							<CategoryInputsWrapper>
@@ -79,7 +80,7 @@ export const ControlForm = ({ onSubmit }: ControlFormProps) => {
 									placeholder="27"
 									name="minTemperature"
 									valueTrigger="onChange"
-									onChange={handleNumberInput}
+									onChange={maskNumberInput}
 									onBlur={maskTemperature}
 								/>
 								<FormikInput
@@ -87,11 +88,12 @@ export const ControlForm = ({ onSubmit }: ControlFormProps) => {
 									placeholder="38"
 									name="maxTemperature"
 									valueTrigger="onChange"
-									onChange={handleNumberInput}
+									onChange={maskNumberInput}
 									onBlur={maskTemperature}
 								/>
 							</CategoryInputsWrapper>
 						</CategoryWrapper>
+
 						<SubmitButton htmlType="submit" styleType="primary">
 							Iniciar incubação
 						</SubmitButton>
