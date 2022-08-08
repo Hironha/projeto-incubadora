@@ -5,6 +5,7 @@ import { AuthContext } from "@providers/AuthProvider";
 export enum WSStatus {
 	CONNECTED = "connected",
 	CONNECTING = "connecting",
+	RECONNECTING = "reconnecting",
 	DISCONNECTED = "disconnected",
 	UNAUTHORIZED = "unauthorized",
 }
@@ -95,7 +96,7 @@ export const useWS = (props: UseWSProps) => {
 		}
 
 		attempts.current += 1;
-		setStatus(WSStatus.CONNECTING);
+		setStatus(WSStatus.RECONNECTING);
 
 		setTimeout(() => handleReconnection(), reconnectionInterval);
 	}, []);

@@ -38,16 +38,19 @@ export const ControlForm = ({ onSubmit }: ControlFormProps) => {
 		onSubmit && onSubmit(values);
 	};
 
+	const handleNumberInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+		event.target.value = event.target.value.replace(/\D+/g, "");
+	};
+
 	const maskTemperature = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const clearPattern = /\D+/g;
-		const cleanValue = event.target.value.replace(clearPattern, "");
+		const cleanValue = event.target.value.replace(/\D+/g, "");
 		if (cleanValue) {
 			event.target.value = cleanValue.replace(/(\d*)/, "$1 °C");
 		}
 	};
 
 	return (
-		<Formik initialValues={initialValues} onSubmit={handleSubmit}>
+		<Formik validateOnBlur initialValues={initialValues} onSubmit={handleSubmit}>
 			{() => (
 				<Form>
 					<Container>
@@ -75,12 +78,16 @@ export const ControlForm = ({ onSubmit }: ControlFormProps) => {
 									label="Temperatura mínima em °C"
 									placeholder="27"
 									name="minTemperature"
+									valueTrigger="onChange"
+									onChange={handleNumberInput}
 									onBlur={maskTemperature}
 								/>
 								<FormikInput
 									label="Temperature máxima em °C"
 									placeholder="38"
 									name="maxTemperature"
+									valueTrigger="onChange"
+									onChange={handleNumberInput}
 									onBlur={maskTemperature}
 								/>
 							</CategoryInputsWrapper>

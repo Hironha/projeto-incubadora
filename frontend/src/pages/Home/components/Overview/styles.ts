@@ -3,7 +3,6 @@ import Lottie from "lottie-react";
 
 export const Container = styled.div`
 	display: flex;
-	/* justify-content: center; */
 	flex-direction: column;
 	align-items: center;
 	gap: 1.6rem;
@@ -14,6 +13,16 @@ export const Container = styled.div`
 	padding: 1rem 0;
 	overflow-x: hidden;
 	overflow-y: auto;
+`;
+
+export const LoadingContainer = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	width: 100%;
+	height: 100%;
+	min-height: inherit;
 `;
 
 export const ImageLogo = styled.img`
@@ -52,7 +61,7 @@ export const CardWrapper = styled.li`
 	padding: 1.6rem;
 	box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
 
-	@media(max-width: ${props => props.theme.breakpoints.sm}) {
+	@media (max-width: ${props => props.theme.breakpoints.sm}) {
 		align-self: center;
 		padding: 1.6rem 0;
 		width: calc(100% - 2.4rem);

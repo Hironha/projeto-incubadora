@@ -7,11 +7,12 @@ import {
 	CartText,
 	CardsList,
 	ImageLogo,
+	LoadingContainer,
 } from "./styles";
 
 import { Button } from "@components/Button";
 
-import { useWS } from "@hooks/useWS";
+import { useWS, WSStatus } from "@hooks/useWS";
 
 import Logo from "@assets/images/logo.png";
 import humidityIcon from "@assets/lotties/humidity-icon.json";
@@ -20,18 +21,12 @@ import clockIcon from "@assets/lotties/clock-icon.json";
 import calendarIcon from "@assets/lotties/calendar-icon.json";
 
 import type { LottieRef } from "lottie-react";
-
-enum BulbStatus {
-	ON = "on",
-	OFF = "off",
-}
-
-type SensorData = {
-	humidity: number;
-	temperature: number;
-	bulbStatus: BulbStatus;
-	sensored_at: string;
-};
+import {
+	IncubatorMessageEvent,
+	type IncubatorMessage,
+	type SensorData,
+} from "@interfaces/incubatorWS";
+import { Loading } from "@components/Loading";
 
 export const Overview = () => {
 	const humidityRef: LottieRef = useRef(null);
@@ -61,26 +56,49 @@ export const Overview = () => {
 	const handleReconnect = () => reconnect();
 
 	useEffect(() => {
+		const handleMonitoringMessage = (data: SensorData) => {
+			setSensorData(data);
+			temperatureRef.current?.goToAndPlay(0);
+			humidityRef.current?.goToAndPlay(0);
+		};
+
+		const handleConnectionMessage = () => {
+			status.setStatus(WSStatus.CONNECTED);
+		};
+
 		const initWS = async () => {
 			const ws = await getWS();
 			ws.onmessage = event => {
-				setSensorData(JSON.parse(event.data).data);
-				temperatureRef.current?.goToAndPlay(0);
-				humidityRef.current?.goToAndPlay(0);
+				const message: IncubatorMessage<unknown> = JSON.parse(event.data);
+				if (message.eventName === IncubatorMessageEvent.MONITORING) {
+					handleMonitoringMessage(message.data as SensorData);
+				}
+
+				if (message.eventName === IncubatorMessageEvent.CONNECTION) {
+					message.data && handleConnectionMessage();
+				}
 			};
 		};
 
 		initWS();
 
 		return () => unmountWS();
-	}, [getWS, unmountWS]);
+	}, [getWS, unmountWS, status.setStatus]);
+
+	if (status.value === WSStatus.CONNECTING) {
+		return (
+			<LoadingContainer>
+				<Loading size="medium" />
+			</LoadingContainer>
+		);
+	}
 
 	return (
 		<Container>
 			<ImageLogo src={Logo} alt="Logo incubadora" />
 			{sensorData && <h3>Atualizado em {new Date(sensorData.sensored_at).toLocaleString()}</h3>}
-			{status.value === "connecting" && <h3>Conexão perdida. Tentando reconexão...</h3>}
-			{status.value === "disconnected" && (
+			{status.value === WSStatus.RECONNECTING && <h3>Conexão perdida. Tentando reconexão...</h3>}
+			{status.value === WSStatus.DISCONNECTED && (
 				<Button styleType="primary" onClick={handleReconnect}>
 					Reconectar
 				</Button>
