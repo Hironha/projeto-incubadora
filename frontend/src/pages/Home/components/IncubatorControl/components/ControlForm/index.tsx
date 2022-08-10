@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { Form, Formik } from "formik";
 
-import { FormikInput } from "@components/FormikInput";
+// import { FormikInput } from "@components/FormikInput";
 import {
 	Container,
 	Title,
@@ -53,7 +53,7 @@ export const ControlForm = ({ onSubmit }: ControlFormProps) => {
 		<Formik validateOnBlur initialValues={initialValues} onSubmit={handleSubmit}>
 			{() => (
 				<Form>
-					<Container>
+					{/* <Container>
 						<Title>Configuração da Incubadora</Title>
 
 						<CategoryWrapper>
@@ -97,7 +97,7 @@ export const ControlForm = ({ onSubmit }: ControlFormProps) => {
 						<SubmitButton htmlType="submit" styleType="primary">
 							Iniciar incubação
 						</SubmitButton>
-					</Container>
+					</Container> */}
 				</Form>
 			)}
 		</Formik>
