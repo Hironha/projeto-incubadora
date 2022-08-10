@@ -29,12 +29,12 @@ export const LoginForm = () => {
 	const handleSubmit = async (values: FormValues) => {
 		try {
 			console.log(values);
-			// const auth = getAuth();
-			// await signInWithEmailAndPassword(auth, values.email, values.password);
+			const auth = getAuth();
+			await signInWithEmailAndPassword(auth, values.email, values.password);
 
-			// setTimeout(() => {
-			// 	navigate("/");
-			// }, 500);
+			setTimeout(() => {
+				navigate("/");
+			}, 500);
 		} catch (err) {
 			console.log(err);
 		}
@@ -80,41 +80,5 @@ export const LoginForm = () => {
 				</LayoutGroup>
 			</Container>
 		</Form.Provider>
-
-		// <Formik
-		// 	validateOnChange
-		// 	validateOnMount
-		// 	initialValues={initialValues}
-		// 	onSubmit={handleSubmit}
-		// 	validationSchema={validationSchema}
-		// >
-		// 	{({ isSubmitting, isValid }) => (
-		// 		<Form>
-		// 			<Container>
-		// 				<LogoContainer src={Logo} alt="Logo incubadora" />
-
-		// 				<LayoutGroup>
-		// 					<Item as={FormikInput} name="email" label="Email" />
-		// 					{/* <FormikInput label="Email" name="email" valueTrigger="onChange" /> */}
-		// 					{/* <FormikInput label="Senha" name="password" valueTrigger="onChange" /> */}
-
-		// 					<CustomButton
-		// 						htmlType="submit"
-		// 						styleType={isValid ? "primary" : "secondary"}
-		// 						disabled={!isValid}
-		// 					>
-		// 						{isSubmitting ? (
-		// 							<>
-		// 								<Loading color="lightGray" size="small" /> Login
-		// 							</>
-		// 						) : (
-		// 							"Login"
-		// 						)}
-		// 					</CustomButton>
-		// 				</LayoutGroup>
-		// 			</Container>
-		// 		</Form>
-		// 	)}
-		// </Formik>
 	);
 };

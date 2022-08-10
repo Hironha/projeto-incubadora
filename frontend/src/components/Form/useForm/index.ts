@@ -123,9 +123,8 @@ export const useForm = <T extends Object>(): FormInstance<T> => {
 	const validateField = async (key: any) => {
 		const validationSchema = _getValidationSchema();
 		if (!validationSchema) return;
-		const value = getFieldValue(key);
 		try {
-			await validationSchema.validateAt(key, value, { abortEarly: true });
+			await validationSchema.validateAt(key, getFieldValues(), { abortEarly: true });
 		} catch (err) {
 			const message = (err as ValidationError).message;
 			_setFieldError(key, message);

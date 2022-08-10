@@ -6,7 +6,7 @@ import { SchemaOf } from "yup";
 import { useForm, type FormInstance } from "./useForm";
 
 type FormProviderProps<T = any> = Omit<HTMLMotionProps<"form">, "onSubmit"> & {
-	initialValues: T;
+	initialValues?: T;
 	onSubmit: (values: T) => void | Promise<void>;
 	formInstance: FormInstance<any>;
 	validationSchema: SchemaOf<any>;
