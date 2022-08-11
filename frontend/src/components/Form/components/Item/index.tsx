@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { FormContext } from "@components/Form";
 
 import type { HTMLMotionProps } from "framer-motion";
@@ -29,22 +29,13 @@ export const Item = ({
 }: IItemProps) => {
 	const context = useContext(FormContext);
 	const fieldRef = useRef<HTMLInputElement>();
-	const initialMeta: FieldMeta = useMemo(
-		() => ({ value: context._getFieldInitialValue(name), touched: false }),
-		[]
-	);
-	const [meta, setMeta] = useState<FieldMeta>(initialMeta);
-
-	const updateMeta = (partialMeta: Partial<FieldMeta>) => {
-		const meta = context._getFieldsMeta().get(name);
-		if (meta) context.setFieldMeta(name, { ...meta, ...partialMeta });
-	};
+	const [meta, setMeta] = useState<FieldMeta>(context.meta.getFieldMeta(name));
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { value } = event.target;
 		const initialValue = context._getFieldInitialValue(name);
 		const newMeta: FieldMeta = { touched: initialValue !== value, value: value };
-		updateMeta(newMeta);
+		context.meta.setFieldMeta(name, newMeta);
 		setMeta(newMeta);
 		onChange && onChange(event);
 	};
@@ -55,16 +46,15 @@ export const Item = ({
 	};
 
 	const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
-		updateMeta({ error: undefined });
-
+		context.meta.setFieldMeta(name, { error: undefined });
 		onFocus && onFocus(event);
 	};
 
 	useEffect(() => {
 		if (Field) {
 			fieldRef.current && context._setField(name, fieldRef.current);
-			context.setFieldMeta(name, initialMeta);
-			context._addMetaObserver(name, meta => setMeta(meta));
+			context.meta.resetFieldMeta(name);
+			context.meta.subscribe(name, meta => setMeta(meta));
 		}
 	}, []);
 

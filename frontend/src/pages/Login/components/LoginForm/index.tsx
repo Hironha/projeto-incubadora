@@ -49,15 +49,7 @@ export const LoginForm = () => {
 		>
 			<Container>
 				<LogoContainer src={Logo} alt="Logo incubadora" />
-				<Button
-					htmlType="button"
-					styleType="danger"
-					onClick={() => {
-						form.focus("password");
-					}}
-				>
-					Test
-				</Button>
+
 				<LayoutGroup>
 					<Form.Item as={Input} label="Email" name="email" />
 					<Form.Item as={Input} label="Senha" name="password" />

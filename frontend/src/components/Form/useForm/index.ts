@@ -1,23 +1,19 @@
 import { useMemo, useRef } from "react";
+import { type FieldMetaInstace, useFieldsMeta } from "./useFieldsMeta";
 import type { SchemaOf, ValidationError } from "yup";
-import type { FieldMeta } from "../components/Item";
-
-type MetaChangeHandler = (meta: FieldMeta) => void;
 
 export type FormInstance<T extends Object> = {
+	meta: FieldMetaInstace<T>;
 	getFieldValue: <K extends keyof T>(key: K) => T[K] | null;
 	setFieldValue: <K extends keyof T>(key: K, value: T[K]) => void;
 	focus: <K extends keyof T>(key: K) => void;
 	resetField: <K extends keyof T>(key: K) => void;
 	resetFields: () => void;
-	setFieldMeta: <K extends keyof T>(key: K, meta: FieldMeta) => void;
 	getFieldValues: () => T;
 	validateField: <K extends keyof T>(key: K) => Promise<void>;
 	_setField: <K extends keyof T>(name: K, field: HTMLInputElement | HTMLSelectElement) => void;
 	_setInitialValues: (values: T) => void;
 	_getFieldInitialValue: <K extends keyof T>(key: K) => T[K] | "";
-	_addMetaObserver: <K extends keyof T>(key: K, callback: MetaChangeHandler) => void;
-	_getFieldsMeta: () => Map<string, FieldMeta>;
 	_setValidationSchema: (shema: SchemaOf<any>) => void;
 	_getValidationSchema: () => SchemaOf<any> | null;
 };
@@ -26,8 +22,11 @@ export const useForm = <T extends Object>(): FormInstance<T> => {
 	const _initialValues = useRef<Object>();
 	const _validationSchema = useRef<SchemaOf<any>>();
 	const _fields = useRef<Map<string, HTMLInputElement | HTMLSelectElement>>();
-	const _fieldsMeta = useRef<Map<string, FieldMeta>>();
-	const _metaObservers = useRef<Map<string, MetaChangeHandler>>();
+
+	const getInitialValues = (): T | null =>
+		_initialValues.current ? ({ ..._initialValues.current } as T) : null;
+
+	const fieldsMetas = useFieldsMeta<T>({ getInitialValues });
 
 	const _getFields = () => {
 		if (_fields.current) return _fields.current;
@@ -39,42 +38,6 @@ export const useForm = <T extends Object>(): FormInstance<T> => {
 		_getFields().set(name, field);
 	};
 
-	const _getMetaObservers = () => {
-		if (_metaObservers.current) return _metaObservers.current;
-		_metaObservers.current = new Map();
-		return _metaObservers.current;
-	};
-
-	const _getFieldsMeta = () => {
-		if (_fieldsMeta.current) return _fieldsMeta.current;
-		const metas = new Map();
-		_getMetaObservers().forEach((_, key) => {
-			metas.set(key, _getInitFieldMeta(key));
-		});
-		_fieldsMeta.current = metas;
-		return _fieldsMeta.current;
-	};
-
-	const _getInitFieldMeta = (key: string): FieldMeta => {
-		const initialValues = _getInitialValues();
-		if (initialValues && initialValues[key]) return { value: initialValues[key], touched: false };
-		return { value: "", touched: false };
-	};
-
-	const setFieldMeta = (key: any, meta: FieldMeta) => {
-		const fieldsMeta = _getFieldsMeta();
-		fieldsMeta.set(key, meta);
-		const callback = _getMetaObservers().get(key);
-		if (callback) callback(meta);
-	};
-
-	const _addMetaObserver = (key: any, callback: MetaChangeHandler) => {
-		const metaObservers = _getMetaObservers();
-		metaObservers.set(key, callback);
-	};
-
-	const _getInitialValues = () => _initialValues.current || null;
-
 	const _getValidationSchema = () => _validationSchema.current || null;
 
 	const _setValidationSchema = <T extends SchemaOf<any>>(schema: T) => {
@@ -83,30 +46,28 @@ export const useForm = <T extends Object>(): FormInstance<T> => {
 
 	const _setInitialValues = <T extends Object>(values: T) => {
 		_initialValues.current = values;
+		Object.entries(values).forEach(([key, value]) => {
+			fieldsMetas.setFieldMeta(key as any, { value });
+		});
 	};
 
 	const _getFieldInitialValue = (key: any) => {
-		const initialValues = _getInitialValues();
+		const initialValues = getInitialValues();
 		if (initialValues) return initialValues[key];
 		return "";
 	};
 
-	const getFieldValue = (key: any): any => {
-		const meta = _getFieldsMeta().get(key);
-		if (!meta) return null;
-		return meta.value;
-	};
+	const getFieldValue = <K extends keyof T>(key: K): T[K] => fieldsMetas.getFieldMeta(key).value;
 
 	const getFieldValues = (): any => {
-		const meta = _getFieldsMeta();
-		if (!meta) return null;
-		return Object.fromEntries(Array.from(meta.entries()).map(([key, value]) => [key, value.value]));
+		const metas = fieldsMetas.getFieldsMeta();
+		return Object.fromEntries(
+			Array.from(metas.entries()).map(([key, value]) => [key, value.value])
+		);
 	};
 
-	const setFieldValue = (key: any, value: any) => {
-		const meta = _getFieldsMeta().get(key);
-		if (!meta) return;
-		setFieldMeta(key, { ...meta, value });
+	const setFieldValue = <K extends keyof T>(key: K, value: T[K]) => {
+		fieldsMetas.setFieldMeta(key, { value });
 	};
 
 	const focus = (key: any) => {
@@ -114,10 +75,8 @@ export const useForm = <T extends Object>(): FormInstance<T> => {
 		if (input) input.focus();
 	};
 
-	const _setFieldError = (key: any, error: string) => {
-		const meta = _getFieldsMeta().get(key);
-		if (meta) setFieldMeta(key, { ...meta, error });
-		else setFieldMeta(key, _getInitFieldMeta(key));
+	const _setFieldError = (key: keyof T, error: string) => {
+		fieldsMetas.setFieldMeta(key, { error });
 	};
 
 	const validateField = async (key: any) => {
@@ -131,32 +90,26 @@ export const useForm = <T extends Object>(): FormInstance<T> => {
 		}
 	};
 
-	const resetField = (key: any) => {
-		const initialValues = _getInitialValues();
-		if (!initialValues) {
-			setFieldValue(key, "");
-		} else {
-			if (initialValues[key]) setFieldValue(key, initialValues[key]);
-		}
+	const resetField = (key: keyof T) => {
+		fieldsMetas.resetFieldMeta(key);
 	};
 
-	const resetFields = () => _getFields().forEach((_, key) => resetField(key));
+	const resetFields = () =>
+		_getFields().forEach((_, key) => fieldsMetas.resetFieldMeta(key as any));
 
 	const formInstace = useMemo(
 		() => ({
+			meta: fieldsMetas,
 			getFieldValue,
 			getFieldValues,
 			setFieldValue,
 			focus,
 			resetField,
 			resetFields,
-			setFieldMeta,
 			validateField,
 			_setField,
 			_setInitialValues,
 			_getFieldInitialValue,
-			_addMetaObserver,
-			_getFieldsMeta,
 			_setValidationSchema,
 			_getValidationSchema,
 		}),
