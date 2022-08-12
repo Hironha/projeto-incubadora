@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { type FieldMetaInstace, useFieldsMeta } from "./useFieldsMeta";
 import type { SchemaOf, ValidationError } from "yup";
 
@@ -23,8 +23,10 @@ export const useForm = <T extends Object>(): FormInstance<T> => {
 	const _validationSchema = useRef<SchemaOf<any>>();
 	const _fields = useRef<Map<string, HTMLInputElement | HTMLSelectElement>>();
 
-	const getInitialValues = (): T | null =>
-		_initialValues.current ? ({ ..._initialValues.current } as T) : null;
+	const getInitialValues = useCallback(
+		(): T | null => (_initialValues.current ? ({ ..._initialValues.current } as T) : null),
+		[]
+	);
 
 	const fieldsMetas = useFieldsMeta<T>({ getInitialValues });
 

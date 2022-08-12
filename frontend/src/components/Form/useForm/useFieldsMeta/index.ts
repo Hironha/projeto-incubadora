@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 
 import type { FieldMeta } from "../../components/Item";
 
@@ -74,11 +74,16 @@ export const useFieldsMeta = <T extends Object>({
 		_getMetaObservers().set(key, newObserver);
 	};
 
-	return {
-		getFieldsMeta,
-		getFieldMeta,
-		setFieldMeta,
-		resetFieldMeta,
-		subscribe,
-	};
+	const metaInstance = useMemo(
+		() => ({
+			getFieldsMeta,
+			getFieldMeta,
+			setFieldMeta,
+			resetFieldMeta,
+			subscribe,
+		}),
+		[]
+	);
+
+	return metaInstance;
 };

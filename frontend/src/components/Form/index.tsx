@@ -2,7 +2,7 @@ import { type HTMLMotionProps, motion } from "framer-motion";
 import React, { createContext, useEffect, useState } from "react";
 import { Item } from "./components";
 
-import { SchemaOf } from "yup";
+import type { SchemaOf } from "yup";
 import { useForm, type FormInstance } from "./useForm";
 
 type FormProviderProps<T = any> = Omit<HTMLMotionProps<"form">, "onSubmit"> & {
@@ -12,9 +12,7 @@ type FormProviderProps<T = any> = Omit<HTMLMotionProps<"form">, "onSubmit"> & {
 	validationSchema: SchemaOf<any>;
 };
 
-type FormContext<T extends Object> = FormInstance<T> & {
-	isSubmitting: boolean;
-};
+type FormContext<T extends Object> = FormInstance<T>;
 
 export const FormContext = createContext<FormContext<any>>({} as FormContext<any>);
 
@@ -24,27 +22,23 @@ export const FormProvider = <T,>({
 	initialValues,
 	onSubmit,
 	validationSchema,
-	onBlurCapture,
+	onKeyDownCapture,
 	...formProps
 }: FormProviderProps<T>) => {
-	const [isSubmitting, setIsSubmitting] = useState(false);
-
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		const values = formInstance.getFieldValues();
-		setIsSubmitting(true);
-		await onSubmit(values);
-		setIsSubmitting(false);
+		const isValid = await validationSchema
+			.validate(formInstance.getFieldValues())
+			.then(() => true)
+			.catch(() => false);
+		if (!isValid) return;
+		await onSubmit(formInstance.getFieldValues());
 	};
 
-	const handleBlurCapture = async (event: React.FocusEvent<HTMLFormElement>) => {
-		onBlurCapture && onBlurCapture(event);
-		const validationSchema = formInstance._getValidationSchema();
-		if (!validationSchema) return;
-		try {
-			const values = formInstance.getFieldValues();
-			await validationSchema.validate(values, { abortEarly: true });
-		} catch (err) {}
+	const handleKeyDownCapture: React.KeyboardEventHandler<HTMLFormElement> = event => {
+		if (event.key === "Enter") handleSubmit(event);
+
+		onKeyDownCapture && onKeyDownCapture(event);
 	};
 
 	useEffect(() => {
@@ -53,8 +47,13 @@ export const FormProvider = <T,>({
 	}, []);
 
 	return (
-		<FormContext.Provider value={{ ...formInstance, isSubmitting }}>
-			<motion.form layout onSubmit={handleSubmit} onBlurCapture={handleBlurCapture} {...formProps}>
+		<FormContext.Provider value={{ ...formInstance }}>
+			<motion.form
+				layout
+				onSubmit={handleSubmit}
+				onKeyDownCapture={handleKeyDownCapture}
+				{...formProps}
+			>
 				{children}
 			</motion.form>
 		</FormContext.Provider>

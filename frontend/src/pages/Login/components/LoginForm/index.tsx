@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
@@ -11,6 +12,7 @@ import { Loading } from "@components/Loading";
 import { Form } from "@components/Form";
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
+import { useState } from "react";
 
 export type FormValues = {
 	email: string;
@@ -19,6 +21,7 @@ export type FormValues = {
 
 export const LoginForm = () => {
 	const navigate = useNavigate();
+	const [submitting, setSubmitting] = useState(false);
 	const form = Form.useForm<FormValues>();
 
 	const initialValues: FormValues = {
@@ -28,10 +31,12 @@ export const LoginForm = () => {
 
 	const handleSubmit = async (values: FormValues) => {
 		try {
-			console.log(values);
 			const auth = getAuth();
+			setSubmitting(true);
+
 			await signInWithEmailAndPassword(auth, values.email, values.password);
 
+			setSubmitting(false);
 			setTimeout(() => {
 				navigate("/");
 			}, 500);
@@ -52,22 +57,21 @@ export const LoginForm = () => {
 
 				<LayoutGroup>
 					<Form.Item as={Input} label="Email" name="email" />
-					<Form.Item as={Input} label="Senha" name="password" />
+					<Form.Item as={Input} label="Senha" name="password" type="password" />
 
 					<CustomButton
+						layout
 						htmlType="submit"
-						styleType="primary"
-						// styleType={isValid ? "primary" : "secondary"}
-						// disabled={!isValid}
+						styleType={submitting ? "secondary" : "primary"}
+						disabled={submitting}
 					>
-						Login
-						{/* {isSubmitting ? (
+						{submitting ? (
 							<>
-								<Loading color="lightGray" size="small" /> Login
+								<Loading size="small" /> <motion.span>Login</motion.span>
 							</>
 						) : (
 							"Login"
-						)} */}
+						)}
 					</CustomButton>
 				</LayoutGroup>
 			</Container>

@@ -13,18 +13,30 @@ enum InputVariants {
 	DEFAULT = "default",
 }
 
-interface IInputProps extends HTMLMotionProps<"input"> {
+interface IInputProps extends Omit<HTMLMotionProps<"input">, "type"> {
 	name: string;
 	placeholder?: string;
 	label: React.ReactNode;
 	meta: FieldMeta;
 	id?: string;
+	type: "text" | "password";
 	valueTrigger?: "onChange" | "onBlur";
 }
 
 export const Input = forwardRef<HTMLInputElement, IInputProps>(
 	(
-		{ id, label, meta, name, placeholder, onBlur, onFocus, valueTrigger = "onBlur", ...inputProps },
+		{
+			id,
+			label,
+			meta,
+			name,
+			placeholder,
+			onBlur,
+			onFocus,
+			valueTrigger = "onBlur",
+			type = "text",
+			...inputProps
+		},
 		inputRef
 	) => {
 		const [focused, setFocused] = useState(false);
@@ -95,6 +107,7 @@ export const Input = forwardRef<HTMLInputElement, IInputProps>(
 							placeholder={placeholder}
 							onBlur={handleBlur}
 							onFocus={handleFocus}
+							type={type}
 						/>
 					</InputContainer>
 
