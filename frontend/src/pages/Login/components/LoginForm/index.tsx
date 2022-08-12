@@ -48,7 +48,7 @@ export const LoginForm = () => {
 			const isValid = metas.every(({ meta }) => !meta.error && meta.touched);
 			setIsValid(isValid);
 		});
-	}, []);
+	}, [form]);
 
 	return (
 		<Form.Provider
