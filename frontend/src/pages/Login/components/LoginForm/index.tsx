@@ -19,6 +19,7 @@ export type FormValues = {
 export const LoginForm = () => {
 	const navigate = useNavigate();
 	const [submitting, setSubmitting] = useState(false);
+	const [isValid, setIsValid] = useState(false);
 	const form = Form.useForm<FormValues>();
 
 	const initialValues: FormValues = {
@@ -42,6 +43,13 @@ export const LoginForm = () => {
 		}
 	};
 
+	useEffect(() => {
+		form.meta.subscribeToAll(metas => {
+			const isValid = metas.every(({ meta }) => !meta.error && meta.touched);
+			setIsValid(isValid);
+		});
+	}, []);
+
 	return (
 		<Form.Provider
 			initialValues={initialValues}
@@ -60,8 +68,8 @@ export const LoginForm = () => {
 						layout
 						htmlType="submit"
 						loading={submitting ? { size: "small" } : undefined}
-						styleType={submitting ? "secondary" : "primary"}
-						disabled={submitting}
+						styleType={!isValid || submitting ? "secondary" : "primary"}
+						disabled={submitting || !isValid}
 					>
 						Login
 					</CustomButton>
