@@ -46,8 +46,8 @@ export const Item = ({
 	};
 
 	const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
-		context.meta.setFieldMeta(name, { error: undefined });
 		onFocus && onFocus(event);
+		context.meta.setFieldMeta(name, { error: undefined });
 	};
 
 	useEffect(() => {
