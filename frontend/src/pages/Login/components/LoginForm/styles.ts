@@ -9,9 +9,9 @@ export const LogoContainer = styled.img`
 export const Container = styled.div`
 	display: flex;
 	flex-direction: column;
-	gap: 1.6rem;
 	justify-content: center;
 	align-items: center;
+	gap: 16px;
 `;
 
 export const CustomButton = styled(Button)`

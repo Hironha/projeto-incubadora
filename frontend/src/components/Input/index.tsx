@@ -35,6 +35,7 @@ export const Input = forwardRef<HTMLInputElement, IInputProps>(
 			onFocus,
 			valueTrigger = "onBlur",
 			type = "text",
+			className,
 			...inputProps
 		},
 		inputRef
@@ -87,7 +88,7 @@ export const Input = forwardRef<HTMLInputElement, IInputProps>(
 		};
 
 		return (
-			<Container layout>
+			<Container className={className} layout>
 				<LayoutGroup id={`layout-${name}`}>
 					<Label layout="position" htmlFor={inputID}>
 						{label}

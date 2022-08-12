@@ -1,5 +1,10 @@
 import styled from "styled-components";
 import { Button } from "@components/Button";
+import { Input } from '@components/Input'
+
+export const CustomInput = styled(Input)`
+	align-self: flex-start;
+`
 
 export const Title = styled.h2`
 	font-size: 2rem;

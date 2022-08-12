@@ -1,13 +1,13 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 
 import { Form } from "@components/Form";
-import { Input } from "@components/Input";
 import {
 	Container,
 	Title,
 	CategoryWrapper,
 	CategoryTitle,
 	CategoryInputsWrapper,
+	CustomInput,
 	SubmitButton,
 } from "./styles";
 
@@ -70,13 +70,13 @@ export const ControlForm = ({ onSubmit }: ControlFormProps) => {
 					<CategoryTitle>Controle do motor</CategoryTitle>
 					<CategoryInputsWrapper>
 						<Form.Item
-							as={Input}
+							as={CustomInput}
 							name="incubationDuration"
 							label="Duração da incubação"
 							placeholder="2d 5h 30m"
 						/>
 						<Form.Item
-							as={Input}
+							as={CustomInput}
 							name="rollInterval"
 							label="Intervalo de rolagem"
 							placeholder="1h 27m"
@@ -88,14 +88,14 @@ export const ControlForm = ({ onSubmit }: ControlFormProps) => {
 					<CategoryTitle>Controle da temperatura</CategoryTitle>
 					<CategoryInputsWrapper>
 						<Form.Item
-							as={Input}
+							as={CustomInput}
 							name="minTemperature"
 							label="Temperatura mínima em °C"
 							placeholder="27"
 							onBlur={maskMinTemperature}
 						/>
 						<Form.Item
-							as={Input}
+							as={CustomInput}
 							name="maxTemperature"
 							label="Temperature máxima em °C"
 							placeholder="38"

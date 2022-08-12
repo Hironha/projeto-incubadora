@@ -4,6 +4,8 @@ import type { FieldMeta } from "../../components/Item";
 
 type MetaChangeHandler = (meta: FieldMeta) => void;
 
+type AllMetasObserverCallback<T> = (allMeta: { name: keyof T; meta: FieldMeta }[]) => void;
+
 type UseFieldsMetaProps<T extends Object> = {
 	getInitialValues: () => T | null;
 };
@@ -14,6 +16,7 @@ export type FieldMetaInstace<T extends Object> = {
 	setFieldMeta: <K extends keyof T>(key: K, meta: Partial<FieldMeta>) => void;
 	resetFieldMeta: <K extends keyof T>(key: K) => void;
 	subscribe: <K extends keyof T>(key: K, callback: MetaChangeHandler) => void;
+	subscribeToAll: (callback: AllMetasObserverCallback<T>) => void;
 };
 
 export const useFieldsMeta = <T extends Object>({
@@ -21,6 +24,7 @@ export const useFieldsMeta = <T extends Object>({
 }: UseFieldsMetaProps<T>): FieldMetaInstace<T> => {
 	const _fieldsMeta = useRef<Map<keyof T, FieldMeta>>();
 	const _metaObservers = useRef<Map<keyof T, Set<MetaChangeHandler>>>();
+	const _allMetasObservers = useRef<Set<AllMetasObserverCallback<T>>>();
 
 	const _getInitFieldMeta = (key: keyof T): FieldMeta => {
 		const initialValues = getInitialValues();
@@ -47,6 +51,7 @@ export const useFieldsMeta = <T extends Object>({
 
 		fieldsMeta.set(key, newMeta);
 		_updateObservers(key, newMeta);
+		_updateAllMetasObsevers();
 	};
 
 	const resetFieldMeta = (key: keyof T) => {
@@ -57,6 +62,12 @@ export const useFieldsMeta = <T extends Object>({
 		if (_metaObservers.current) return _metaObservers.current;
 		_metaObservers.current = new Map();
 		return _metaObservers.current;
+	};
+
+	const _getAllMetaObservers = () => {
+		if (_allMetasObservers.current) return _allMetasObservers.current;
+		_allMetasObservers.current = new Set();
+		return _allMetasObservers.current;
 	};
 
 	const _updateObservers = (key: keyof T, meta: FieldMeta) => {
@@ -75,6 +86,18 @@ export const useFieldsMeta = <T extends Object>({
 		_getMetaObservers().set(key, newObserver);
 	};
 
+	const subscribeToAll = (callback: AllMetasObserverCallback<T>) => {
+		_getAllMetaObservers().add(callback);
+	};
+
+	const _updateAllMetasObsevers = () => {
+		const allMetas = Array.from(getFieldsMeta().entries()).map(([key, value]) => ({
+			name: key,
+			meta: value,
+		}));
+		_getAllMetaObservers().forEach(callback => callback(allMetas));
+	};
+
 	const metaInstance = useMemo(
 		() => ({
 			getFieldsMeta,
@@ -82,6 +105,7 @@ export const useFieldsMeta = <T extends Object>({
 			setFieldMeta,
 			resetFieldMeta,
 			subscribe,
+			subscribeToAll,
 		}),
 		[]
 	);

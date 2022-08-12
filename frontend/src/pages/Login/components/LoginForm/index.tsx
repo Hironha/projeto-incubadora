@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
@@ -8,11 +8,8 @@ import { LogoContainer, Container, CustomButton } from "./styles";
 
 import Logo from "@assets/images/logo.png";
 import { LayoutGroup } from "framer-motion";
-import { Loading } from "@components/Loading";
 import { Form } from "@components/Form";
 import { Input } from "@components/Input";
-import { Button } from "@components/Button";
-import { useState } from "react";
 
 export type FormValues = {
 	email: string;

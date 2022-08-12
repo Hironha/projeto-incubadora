@@ -16,7 +16,6 @@ export const InputContainer = styled(motion.div)`
 
 export const Container = styled(motion.div)`
 	display: flex;
-	align-self: flex-start;
 	flex-direction: column;
 	width: max(400px, 50%);
 
