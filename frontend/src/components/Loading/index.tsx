@@ -10,7 +10,7 @@ enum LoadingSize {
 	LARGE = "large",
 }
 
-type LoadingProps = {
+export type LoadingProps = {
 	className?: string;
 	color?: keyof DefaultTheme["colors"] | (keyof DefaultTheme["colors"])[];
 	size?: `${LoadingSize}`;

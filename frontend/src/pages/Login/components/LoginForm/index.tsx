@@ -62,16 +62,11 @@ export const LoginForm = () => {
 					<CustomButton
 						layout
 						htmlType="submit"
+						loading={submitting ? { size: "small" } : undefined}
 						styleType={submitting ? "secondary" : "primary"}
 						disabled={submitting}
 					>
-						{submitting ? (
-							<>
-								<Loading size="small" /> <motion.span>Login</motion.span>
-							</>
-						) : (
-							"Login"
-						)}
+						Login
 					</CustomButton>
 				</LayoutGroup>
 			</Container>

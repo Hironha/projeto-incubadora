@@ -5,6 +5,7 @@ import { CustomButton, type ButtonStyleType } from "./styles";
 import { theme } from "@utils/theme";
 
 import type { TargetAndTransition, MotionProps, Variant } from "framer-motion";
+import { Loading, LoadingProps } from "@components/Loading";
 
 interface IButtonProps
 	extends MotionProps,
@@ -12,13 +13,17 @@ interface IButtonProps
 			React.ButtonHTMLAttributes<HTMLButtonElement>,
 			"onAnimationStart" | "onDrag" | "onDragEnd" | "onDragStart" | "style"
 		> {
+	loading?: Omit<LoadingProps, 'className'>;
 	children?: React.ReactNode;
 	styleType?: ButtonStyleType;
 	htmlType?: "button" | "submit";
 }
 
 export const Button = forwardRef<HTMLButtonElement, IButtonProps>(
-	({ children, className, whileHover, htmlType, styleType, disabled, ...motionProps }, ref) => {
+	(
+		{ loading, children, className, whileHover, htmlType, styleType, disabled, ...motionProps },
+		ref
+	) => {
 		const _whileHover: TargetAndTransition = {
 			opacity: 0.75,
 			transition: { duration: 0.5 },
@@ -53,7 +58,14 @@ export const Button = forwardRef<HTMLButtonElement, IButtonProps>(
 				whileHover={!disabled ? whileHover || _whileHover : undefined}
 				{...motionProps}
 			>
-				{children}
+				{loading ? (
+					<>
+						<Loading {...loading} />
+						{children}
+					</>
+				) : (
+					children
+				)}
 			</CustomButton>
 		);
 	}
