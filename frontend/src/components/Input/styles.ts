@@ -15,8 +15,8 @@ export const InputContainer = styled(motion.div)`
 `;
 
 export const Container = styled(motion.div)`
-	/* background: red; */
 	display: flex;
+	align-self: flex-start;
 	flex-direction: column;
 	width: max(400px, 50%);
 
@@ -31,6 +31,7 @@ export const Container = styled(motion.div)`
 `;
 
 export const DataInput = styled(motion.input)`
+	align-self: flex-start;
 	padding: 0.6rem 1.2rem;
 	width: 100%;
 	border-radius: 5px;

@@ -41,8 +41,8 @@ export const Item = ({
 	};
 
 	const handleBlur = async (event: React.FocusEvent<HTMLInputElement>) => {
-		context.validateField(name);
 		onBlur && onBlur(event);
+		context.validateField(name);
 	};
 
 	const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
@@ -52,9 +52,9 @@ export const Item = ({
 
 	useEffect(() => {
 		if (Field) {
-		fieldRef.current && context._setField(name, fieldRef.current);
-		context.meta.resetFieldMeta(name);
-		context.meta.subscribe(name, meta => setMeta(meta));
+			fieldRef.current && context._setField(name, fieldRef.current);
+			context.meta.resetFieldMeta(name);
+			context.meta.subscribe(name, meta => setMeta(meta));
 		}
 	}, []);
 

@@ -70,7 +70,8 @@ export const useFieldsMeta = <T extends Object>({
 			observers.add(callback);
 			return;
 		}
-		const newObserver = new Set<MetaChangeHandler>().add(callback);
+		const newObserver = new Set<MetaChangeHandler>();
+		newObserver.add(callback);
 		_getMetaObservers().set(key, newObserver);
 	};
 

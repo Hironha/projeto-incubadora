@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
-import { Form, Formik } from "formik";
 
-// import { FormikInput } from "@components/FormikInput";
+import { Form } from "@components/Form";
+import { Input } from "@components/Input";
 import {
 	Container,
 	Title,
@@ -11,11 +11,13 @@ import {
 	SubmitButton,
 } from "./styles";
 
+import { validationSchema, getTemperaturePattern } from "./utils/validation";
+
 export type FormValues = {
 	rollInterval: string;
 	incubationDuration: string;
 	maxTemperature: string;
-	minTemprature: string;
+	minTemperature: string;
 };
 
 type ControlFormProps = {
@@ -23,12 +25,14 @@ type ControlFormProps = {
 };
 
 export const ControlForm = ({ onSubmit }: ControlFormProps) => {
+	const form = Form.useForm<FormValues>();
+
 	const initialValues: FormValues = useMemo(
 		() => ({
 			rollInterval: "",
 			incubationDuration: "",
 			maxTemperature: "",
-			minTemprature: "",
+			minTemperature: "",
 		}),
 		[]
 	);
@@ -38,68 +42,72 @@ export const ControlForm = ({ onSubmit }: ControlFormProps) => {
 		onSubmit && onSubmit(values);
 	};
 
-	const maskNumberInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-		event.target.value = event.target.value.replace(/\D+/g, "");
+	const maskMinTemperature = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const cleanValue = event.target.value.replace(/[^\d.]/g, "");
+		if (cleanValue) {
+			form.setFieldValue("minTemperature", cleanValue.replace(getTemperaturePattern(), "$1 °C"));
+		}
 	};
 
-	const maskTemperature = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const cleanValue = event.target.value.replace(/\D+/g, "");
+	const maskMaxTemperature = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const cleanValue = event.target.value.replace(/[^\d.]/g, "");
 		if (cleanValue) {
-			event.target.value = cleanValue.replace(/(\d*)/, "$1 °C");
+			form.setFieldValue("maxTemperature", cleanValue.replace(getTemperaturePattern(), "$1 °C"));
 		}
 	};
 
 	return (
-		<Formik validateOnBlur initialValues={initialValues} onSubmit={handleSubmit}>
-			{() => (
-				<Form>
-					{/* <Container>
-						<Title>Configuração da Incubadora</Title>
+		<Form.Provider
+			initialValues={initialValues}
+			formInstance={form}
+			onSubmit={handleSubmit}
+			validationSchema={validationSchema}
+		>
+			<Container>
+				<Title>Configuração da Incubadora</Title>
 
-						<CategoryWrapper>
-							<CategoryTitle>Controle do motor</CategoryTitle>
-							<CategoryInputsWrapper>
-								<FormikInput
-									label="Duração da incubação"
-									placeholder="2d 5h 30m"
-									name="incubationDuration"
-								/>
-								<FormikInput
-									label="Intervalo de rolagem"
-									placeholder="1h 27m"
-									name="rollInterval"
-								/>
-							</CategoryInputsWrapper>
-						</CategoryWrapper>
+				<CategoryWrapper>
+					<CategoryTitle>Controle do motor</CategoryTitle>
+					<CategoryInputsWrapper>
+						<Form.Item
+							as={Input}
+							name="incubationDuration"
+							label="Duração da incubação"
+							placeholder="2d 5h 30m"
+						/>
+						<Form.Item
+							as={Input}
+							name="rollInterval"
+							label="Intervalo de rolagem"
+							placeholder="1h 27m"
+						/>
+					</CategoryInputsWrapper>
+				</CategoryWrapper>
 
-						<CategoryWrapper>
-							<CategoryTitle>Controle da temperatura</CategoryTitle>
-							<CategoryInputsWrapper>
-								<FormikInput
-									label="Temperatura mínima em °C"
-									placeholder="27"
-									name="minTemperature"
-									valueTrigger="onChange"
-									onChange={maskNumberInput}
-									onBlur={maskTemperature}
-								/>
-								<FormikInput
-									label="Temperature máxima em °C"
-									placeholder="38"
-									name="maxTemperature"
-									valueTrigger="onChange"
-									onChange={maskNumberInput}
-									onBlur={maskTemperature}
-								/>
-							</CategoryInputsWrapper>
-						</CategoryWrapper>
+				<CategoryWrapper>
+					<CategoryTitle>Controle da temperatura</CategoryTitle>
+					<CategoryInputsWrapper>
+						<Form.Item
+							as={Input}
+							name="minTemperature"
+							label="Temperatura mínima em °C"
+							placeholder="27"
+							onBlur={maskMinTemperature}
+						/>
+						<Form.Item
+							as={Input}
+							name="maxTemperature"
+							label="Temperature máxima em °C"
+							placeholder="38"
+							onBlur={maskMaxTemperature}
+						/>
+					</CategoryInputsWrapper>
+				</CategoryWrapper>
 
-						<SubmitButton htmlType="submit" styleType="primary">
-							Iniciar incubação
-						</SubmitButton>
-					</Container> */}
-				</Form>
-			)}
-		</Formik>
+				<SubmitButton htmlType="submit" styleType="primary">
+					Iniciar incubação
+				</SubmitButton>
+			</Container>
+		</Form.Provider>
 	);
 };
