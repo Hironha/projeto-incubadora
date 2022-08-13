@@ -1,107 +1,46 @@
 import type * as WebSocket from 'ws';
 
 import { IncubatorRepository } from '@repositories/incubator';
-import { WSDataEntity } from '@utils/entity/WSDataEntity';
+import { SenderCommunicator } from './SenderCommunicator';
+import { ListenCommunicator } from './ListenCommunicator';
+import { MonitoringEventHandler } from './MonitoringEventHandler';
 
-import { WSDataEvent } from '@interfaces/utility/connection';
+import { WSDataEvent, WSMessage } from '@interfaces/utility/connection';
 
 import type { ISensorData } from '@interfaces/models/sensorData';
-import type {
-	IMonitoringDataInput,
-	IMonitoringDataOutput,
-} from '@interfaces/ios/ws/monitoringData';
-import type { IConnectionDataOuput } from '@interfaces/ios/ws/connectionData';
+import type { IMonitoringEventInput } from '@interfaces/ios/ws/monitoringData';
 export class CommunicateIncubatorService {
-	private listeners: Map<number, WebSocket> = new Map();
-	private timeout: NodeJS.Timeout | null = null;
-	private sender: WebSocket | null = null;
-	private ttl: number = 30 * 1000;
 	private sensoredData: ISensorData[] = [];
 	private maxSensoredData = 10;
+	private listeners = new ListenCommunicator();
+	private sender = new SenderCommunicator();
 
 	constructor(private incubatorRepository = new IncubatorRepository()) {}
 
 	public addSender(ws: WebSocket, ttl?: number) {
-		this.sender = ws;
-		this.ttl = ttl ? ttl : this.ttl;
-		this.setServerTimeout();
-
-		ws.onerror = (err) => {
-			if (!this.sender) return;
-
-			this.sender.close(1000, 'error');
-			this.sender = null;
-			console.error(err);
-		};
-
-		ws.onclose = (event) => {
-			this.sender = null;
-		};
-
-		ws.on('ping', () => {
-			console.log('pinged');
-			ws.pong();
-			this.setServerTimeout();
-		});
-
-		ws.on('message', async (message, isBinary) => {
-			const sensorDataEntity = new WSDataEntity<IMonitoringDataInput>(
-				message,
-				isBinary
-			);
-			const sensorDataJSON = await sensorDataEntity.json();
-			if (sensorDataJSON) {
-				await this.broadcast(sensorDataJSON);
+		const handleMessageEvent = async (message: WSMessage<any>) => {
+			if (message.eventName === WSDataEvent.MONITORING) {
+				await new MonitoringEventHandler(message).exec((output) =>
+					this.broadcast(output)
+				);
 			}
-		});
+		};
+
+		this.sender.setSender(ws, { onmessage: handleMessageEvent });
 	}
 
 	public addListener(ws: WebSocket) {
-		const key = this.listeners.size;
-		this.listeners.set(key, ws);
-		const connectionData: IConnectionDataOuput = {
-			eventName: WSDataEvent.CONNECTION,
-			data: true,
-		};
-
-		ws.send(JSON.stringify(connectionData));
-		ws.on('message', async (message, isBinary) => {
-			const data = new WSDataEntity<any>(message, isBinary);
-			console.log(await data.json());
-		});
-		ws.onclose = () => this.listeners.delete(key);
+		this.listeners.addListener(ws);
 	}
 
-	private setServerTimeout() {
-		if (this.timeout) clearTimeout(this.timeout);
-
-		this.timeout = setTimeout(() => {
-			if (this.sender) {
-				this.sender.close(1000);
-				this.sender = null;
-			}
-		}, this.ttl);
-	}
-
-	private async broadcast(input: IMonitoringDataInput) {
-		const payload = this.formatPayload(input);
-		const payloadStringified = JSON.stringify(payload);
-		if (!payloadStringified) return;
-
-		this.listeners.forEach((ws) => ws.send(payloadStringified));
-
+	private async broadcast(input: IMonitoringEventInput) {
+		this.listeners.broadcast(input);
 		const sensorData = this.getSensorData(input);
 
 		this.sensoredData.push(sensorData);
 		if (this.sensoredData.length >= this.maxSensoredData) {
 			await this.saveSensorData();
 		}
-	}
-
-	private formatPayload(input: IMonitoringDataInput) {
-		const clone = { ...input } as IMonitoringDataOutput;
-		clone.data.sensored_at = new Date().toUTCString();
-		return clone;
 	}
 
 	private async saveSensorData() {
@@ -135,7 +74,7 @@ export class CommunicateIncubatorService {
 		return Math.round(value * converter) / converter;
 	}
 
-	private getSensorData(wsData: IMonitoringDataInput): ISensorData {
+	private getSensorData(wsData: IMonitoringEventInput): ISensorData {
 		return {
 			humidity: wsData.data.humidity,
 			temperature: wsData.data.temperature,

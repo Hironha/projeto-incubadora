@@ -1,16 +1,7 @@
-import type { WSDataEvent, WSMessage } from '@interfaces/utility/connection';
-import type { ISensorData } from '@interfaces/models/sensorData';
+import type { WSMessage } from '@interfaces/utility/connection';
+import type { IMonitoringData } from '@interfaces/utility/monitoring';
 
-export interface IMonitoringDataInput
-	extends WSMessage<
-		Omit<ISensorData, 'sensored_at'> & {
-			bulbStatus: 'on' | 'off';
-		}
-	> {}
+export interface IMonitoringEventInput extends WSMessage<IMonitoringData> {}
 
-export interface IMonitoringDataOutput
-	extends WSMessage<
-		ISensorData & {
-			bulbStatus: 'on' | 'off';
-		}
-	> {}
+export interface IMonitoringEventOutput
+	extends WSMessage<IMonitoringData & { sensored_at: string }> {}

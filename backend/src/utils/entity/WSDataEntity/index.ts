@@ -1,6 +1,6 @@
 import type { RawData } from 'ws';
 
-export class WSDataEntity<T> {
+export class WSDataEntity {
 	constructor(
 		private payload: string | Blob | RawData,
 		private isBinary: boolean = false
@@ -10,7 +10,7 @@ export class WSDataEntity<T> {
 		return await this.payloadToString();
 	}
 
-	public async json() {
+	public async json<T>(): Promise<T | null> {
 		const payloadStringified = await this.payloadToString();
 		return payloadStringified ? this.toJSON(payloadStringified) : null;
 	}
@@ -25,7 +25,7 @@ export class WSDataEntity<T> {
 
 	protected toJSON(json: string) {
 		try {
-			return JSON.parse(json) as T;
+			return JSON.parse(json);
 		} catch (err) {
 			return null;
 		}
