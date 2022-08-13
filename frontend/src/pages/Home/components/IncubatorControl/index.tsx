@@ -5,27 +5,40 @@ import { Loading } from "@components/Loading";
 import { ControlForm } from "./components";
 import { LoadingContainer } from "./styles";
 
+import { inputParser } from "./utils/inputParser";
+import {
+	IncubatorMessageEvent,
+	type IncubatorMessage,
+	type InitIncubationValues,
+} from "@interfaces/incubatorWS";
 import type { FormValues as ControlFormValues } from "./components/ControlForm";
-import { IncubatorMessageEvent, type IncubatorMessage } from "@interfaces/incubatorWS";
 
 export const IncubatorControl = () => {
-	const { getWS, reconnect, status, unmountWS } = useWS({
+	const { getWS, status, unmountWS } = useWS({
 		url: "ws://192.168.0.2:80/incubator/listen",
 		reconnect: true,
 	});
 
 	const handleControlFormSubmit = async (values: ControlFormValues) => {
 		const ws = await getWS();
-		const message: IncubatorMessage<ControlFormValues> = {
+		const message: IncubatorMessage<InitIncubationValues> = {
 			eventName: IncubatorMessageEvent.INIT_INCUBATION,
-			data: values,
+			data: {
+				roll_intervval: inputParser.timeInputToNumber(values.rollInterval),
+				incubation_duration: inputParser.timeInputToNumber(values.incubationDuration),
+				min_temperature: inputParser.temperatureInputToNumber(values.minTemperature),
+				max_temperature: inputParser.temperatureInputToNumber(values.maxTemperature),
+			},
 		};
-		ws.send(JSON.stringify(message));
+		if (status.value === WSStatus.CONNECTED) {
+			ws.send(JSON.stringify(message));
+		}
 	};
 
 	useEffect(() => {
 		const initWS = async () => {
 			const ws = await getWS();
+			
 			ws.onmessage = event => {
 				const message: IncubatorMessage<boolean> = JSON.parse(event.data);
 				if (message.eventName === IncubatorMessageEvent.CONNECTION) {

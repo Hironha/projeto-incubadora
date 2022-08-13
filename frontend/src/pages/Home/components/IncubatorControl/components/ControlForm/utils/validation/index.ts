@@ -1,29 +1,33 @@
 import * as Yup from "yup";
 
-export const getTemperaturePattern = () => /^(\d+(\.\d+){0,1})$/g;
+import { regexes } from "@utils/regexes";
 
-export const maskTemperature = (input: string) => {
-	const isValidTemperature = getTemperaturePattern().test(input);
-	if (isValidTemperature) return input.replace(getTemperaturePattern(), "$1 °C");
-	return input;
+const temperatureInputToNumber = (input: string) => {
+	const match = input.match(/\d+(\.\d+){0,1}/)?.at(0);
+	return match ? parseFloat(match) : 0;
 };
 
-export const validateTimeInput = (input?: string) => {
+const validateTimeInput = (input?: string) => {
 	if (!input) return false;
+	const cleanInput = input.replace(/\s/g, "");
+	const timeAcronymPattern = /^(\d+[dhms])+$/gm;
 
-	const timePattern = /\d+(\.\d+){0,1}[dhms]/g;
-	const matches = input.match(timePattern);
-	if (!matches) return false;
-
-	const usedSuffixes = new Set(matches.map(match => match.replace(/\d/g, "")));
-	return Array.from(usedSuffixes).join("") === input.replace(/[^a-z]/g, "");
+	return timeAcronymPattern.test(cleanInput);
 };
 
-const validateTemperature = (value?: string) => {
+const validateTemperature = (value: string | undefined) => {
 	if (!value) return false;
 
 	const cleanTemperature = value.replace(/[^\d\.]/g, "");
-	return getTemperaturePattern().test(cleanTemperature);
+	return regexes.getFloatPattern().test(cleanTemperature);
+};
+
+const validateMaxTemperature = (value: string | undefined, context: Yup.TestContext<any>) => {
+	if (!value) return false;
+
+	const minTemperature = temperatureInputToNumber(context.parent.minTemperature);
+	const maxTemperature = temperatureInputToNumber(value);
+	return maxTemperature > minTemperature;
 };
 
 export const validationSchema = Yup.object().shape({
@@ -38,5 +42,6 @@ export const validationSchema = Yup.object().shape({
 		.required(),
 	maxTemperature: Yup.string()
 		.test("isValidMaxTemperature", "Temperatura inválida", validateTemperature)
+		.test("isBiggerThanMin", "Temperature máxima inválida", validateMaxTemperature)
 		.required(),
 });

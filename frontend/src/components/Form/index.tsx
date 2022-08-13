@@ -1,64 +1,8 @@
-import { type HTMLMotionProps, motion } from "framer-motion";
-import React, { createContext, useEffect, useState } from "react";
-import { Item } from "./components";
+import { Item } from "./components/Item";
+import { useForm } from "./useForm";
+import { FormProvider } from "./components/FormProvider";
 
-import type { SchemaOf } from "yup";
-import { useForm, type FormInstance } from "./useForm";
-
-type FormProviderProps<T = any> = Omit<HTMLMotionProps<"form">, "onSubmit"> & {
-	initialValues?: T;
-	onSubmit: (values: T) => void | Promise<void>;
-	formInstance: FormInstance<any>;
-	validationSchema: SchemaOf<any>;
-};
-
-type FormContext<T extends Object> = FormInstance<T>;
-
-export const FormContext = createContext<FormContext<any>>({} as FormContext<any>);
-
-export const FormProvider = <T,>({
-	formInstance,
-	children,
-	initialValues,
-	onSubmit,
-	validationSchema,
-	onKeyDownCapture,
-	...formProps
-}: FormProviderProps<T>) => {
-	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-		event.preventDefault();
-		const isValid = await validationSchema
-			.validate(formInstance.getFieldValues())
-			.then(() => true)
-			.catch(() => false);
-		if (!isValid) return;
-		await onSubmit(formInstance.getFieldValues());
-	};
-
-	const handleKeyDownCapture: React.KeyboardEventHandler<HTMLFormElement> = event => {
-		if (event.key === "Enter") handleSubmit(event);
-
-		onKeyDownCapture && onKeyDownCapture(event);
-	};
-
-	useEffect(() => {
-		formInstance._setInitialValues(initialValues as T);
-		formInstance._setValidationSchema(validationSchema);
-	}, []);
-
-	return (
-		<FormContext.Provider value={{ ...formInstance }}>
-			<motion.form
-				layout
-				onSubmit={handleSubmit}
-				onKeyDownCapture={handleKeyDownCapture}
-				{...formProps}
-			>
-				{children}
-			</motion.form>
-		</FormContext.Provider>
-	);
-};
+export { FormContext } from "./components/FormProvider";
 
 export const Form = {
 	Item: Item,

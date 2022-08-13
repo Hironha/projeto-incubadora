@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Form } from "@components/Form";
 import {
@@ -11,7 +11,8 @@ import {
 	SubmitButton,
 } from "./styles";
 
-import { validationSchema, getTemperaturePattern } from "./utils/validation";
+import { regexes } from "@utils/regexes";
+import { validationSchema } from "./utils/validation";
 
 export type FormValues = {
 	rollInterval: string;
@@ -21,40 +22,45 @@ export type FormValues = {
 };
 
 type ControlFormProps = {
-	onSubmit?: (values: FormValues) => void | Promise<void>;
+	isSubmitting?: boolean;
+	onSubmit: (values: FormValues) => void | Promise<void>;
 };
 
-export const ControlForm = ({ onSubmit }: ControlFormProps) => {
+export const ControlForm = ({ isSubmitting, onSubmit }: ControlFormProps) => {
+	const [isValid, setIsValid] = useState(false);
 	const form = Form.useForm<FormValues>();
 
-	const initialValues: FormValues = useMemo(
-		() => ({
-			rollInterval: "",
-			incubationDuration: "",
-			maxTemperature: "",
-			minTemperature: "",
-		}),
-		[]
-	);
+	const initialValues: FormValues = {
+		rollInterval: "",
+		incubationDuration: "",
+		maxTemperature: "",
+		minTemperature: "",
+	};
 
 	const handleSubmit = async (values: FormValues) => {
-		console.log(values);
-		onSubmit && onSubmit(values);
+		onSubmit(values);
 	};
 
-	const maskMinTemperature = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const cleanValue = event.target.value.replace(/[^\d.]/g, "");
-		if (cleanValue) {
-			form.setFieldValue("minTemperature", cleanValue.replace(getTemperaturePattern(), "$1 °C"));
-		}
+	const maskTemperature = (input: string) => {
+		const cleanValue = input.replace(/[^\d.]/g, "");
+		if (cleanValue) return cleanValue.replace(regexes.getFloatPattern(), "$1 °C");
+		return "";
 	};
 
-	const maskMaxTemperature = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const cleanValue = event.target.value.replace(/[^\d.]/g, "");
-		if (cleanValue) {
-			form.setFieldValue("maxTemperature", cleanValue.replace(getTemperaturePattern(), "$1 °C"));
-		}
+	const handleMinTemperatureBlur = (event: React.ChangeEvent<HTMLInputElement>) => {
+		form.setFieldValue("minTemperature", maskTemperature(event.target.value));
 	};
+
+	const handleMaxTemperatureBlur = (event: React.ChangeEvent<HTMLInputElement>) => {
+		form.setFieldValue("maxTemperature", maskTemperature(event.target.value));
+	};
+
+	useEffect(() => {
+		form.meta.subscribeToAll(allMeta => {
+			const isAllValid = allMeta.every(({ meta }) => !meta.error && meta.touched);
+			setIsValid(isAllValid);
+		});
+	}, []);
 
 	return (
 		<Form.Provider
@@ -92,19 +98,23 @@ export const ControlForm = ({ onSubmit }: ControlFormProps) => {
 							name="minTemperature"
 							label="Temperatura mínima em °C"
 							placeholder="27"
-							onBlur={maskMinTemperature}
+							onBlur={handleMinTemperatureBlur}
 						/>
 						<Form.Item
 							as={CustomInput}
 							name="maxTemperature"
 							label="Temperature máxima em °C"
 							placeholder="38"
-							onBlur={maskMaxTemperature}
+							onBlur={handleMaxTemperatureBlur}
 						/>
 					</CategoryInputsWrapper>
 				</CategoryWrapper>
 
-				<SubmitButton htmlType="submit" styleType="primary">
+				<SubmitButton
+					htmlType="submit"
+					styleType={isValid && !isSubmitting ? "primary" : "secondary"}
+					loading={isSubmitting ? { size: "small" } : undefined}
+				>
 					Iniciar incubação
 				</SubmitButton>
 			</Container>

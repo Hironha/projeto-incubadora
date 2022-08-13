@@ -24,3 +24,10 @@ export type SensorData = {
 	bulbStatus: BulbStatus;
 	sensored_at: string;
 };
+
+export type InitIncubationValues = {
+	roll_intervval: number;
+	incubation_duration: number;
+	max_temperature: number;
+	min_temperature: number;
+};
