@@ -26,8 +26,9 @@ export type SensorData = {
 };
 
 export type InitIncubationValues = {
-	roll_intervval: number;
+	roll_interval: number;
 	incubation_duration: number;
 	max_temperature: number;
 	min_temperature: number;
+	started_at: string
 };

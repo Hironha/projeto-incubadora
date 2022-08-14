@@ -24,10 +24,11 @@ export const IncubatorControl = () => {
 		const message: IncubatorMessage<InitIncubationValues> = {
 			eventName: IncubatorMessageEvent.INIT_INCUBATION,
 			data: {
-				roll_intervval: inputParser.timeInputToNumber(values.rollInterval),
+				roll_interval: inputParser.timeInputToNumber(values.rollInterval),
 				incubation_duration: inputParser.timeInputToNumber(values.incubationDuration),
 				min_temperature: inputParser.temperatureInputToNumber(values.minTemperature),
 				max_temperature: inputParser.temperatureInputToNumber(values.maxTemperature),
+				started_at: new Date().toISOString()
 			},
 		};
 		if (status.value === WSStatus.CONNECTED) {
