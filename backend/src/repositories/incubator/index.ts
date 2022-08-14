@@ -32,8 +32,6 @@ export class IncubatorRepository {
 				.collection(this.sensorCollection)
 				.add(sensorData);
 
-			//await db.collection(this.sensorCollection).add(sensorData);
-
 			return new Right(sensorData);
 		} catch (err) {
 			console.error(err);
@@ -43,9 +41,7 @@ export class IncubatorRepository {
 
 	public async saveIncubationInitialized(incubationData: IIncubation) {
 		try {
-			await db.collection(this.incubationsCollection).add({
-				incubationData,
-			});
+			await db.collection(this.incubationsCollection).add(incubationData);
 			return new Right(incubationData);
 		} catch (err) {
 			console.error(err);

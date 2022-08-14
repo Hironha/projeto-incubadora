@@ -60,7 +60,7 @@ void handleStartIncubation(StaticJsonDocument<256> *json) {
   String buffer;
   StaticJsonDocument<256> doc;
 
-  doc = *json;
+  doc["data"] = (*json)["data"];
   doc["eventName"] = INCUBATION_INITIALIZED_EVENT;
   doc["data"]["status"] = "active";
   serializeJson(doc, buffer);
