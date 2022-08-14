@@ -4,9 +4,10 @@ import { validationMessages as messages } from '@utils/validator/validations';
 import { IsBiggerThan } from '@utils/validator/decorators/isBiggerThan';
 
 import { IIncubation, IncubationStatus } from '@interfaces/models/incubation';
+import type { IIncubationInitializedEventOutput } from '@interfaces/ios/ws/incubationInitializedEvent';
+import { WSDataEvent } from '@interfaces/utility/connection';
 
-export class IncubationInitializedDto
- extends Validator<IIncubation> implements IIncubation {
+export class IncubationInitializedDto extends Validator<IIncubation> implements IIncubation {
 	@IsNumber()
 	@IsNotEmpty({ message: messages.isRequired })
 	roll_interval: number;
@@ -26,9 +27,9 @@ export class IncubationInitializedDto
 	})
 	max_temperature: number;
 
-	@IsRFC3339()
+	@IsNumber()
 	@IsNotEmpty({ message: messages.isRequired })
-	started_at: string;
+	started_at: number;
 
 	@IsEnum(IncubationStatus)
 	@IsNotEmpty({ message: messages.isRequired })
@@ -38,14 +39,17 @@ export class IncubationInitializedDto
 		super(input);
 	}
 
-	public export(): IIncubation {
+	public export(): IIncubationInitializedEventOutput {
 		return {
-			roll_interval: this.roll_interval,
-			incubation_duration: this.incubation_duration,
-			min_temperature: this.min_temperature,
-			max_temperature: this.max_temperature,
-			started_at: this.started_at,
-			status: this.status,
+			eventName: WSDataEvent.INCUBATION_INITIALIZED,
+			data: {
+				roll_interval: this.roll_interval,
+				incubation_duration: this.incubation_duration,
+				min_temperature: this.min_temperature,
+				max_temperature: this.max_temperature,
+				started_at: this.started_at,
+				status: this.status,
+			},
 		};
 	}
 }

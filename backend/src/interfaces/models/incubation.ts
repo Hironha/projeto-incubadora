@@ -10,7 +10,7 @@ export interface IIncubation {
 	min_temperature: number;
 	max_temperature: number;
 	status: IncubationStatus;
-	started_at: string;
+	started_at: number;
 }
 
 export interface IIncubationDocData extends IIncubation {

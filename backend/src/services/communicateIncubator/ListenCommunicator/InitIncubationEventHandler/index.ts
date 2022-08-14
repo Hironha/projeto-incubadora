@@ -1,13 +1,9 @@
 import { WSDataEvent, WSMessage } from '@interfaces/utility/connection';
 import { InitIncubationDto } from '@dtos/initIncubationData';
-import { Left, Right, type Either } from '@utils/management';
+import { Left, Right } from '@utils/management';
 import { IncubatorRepository } from '@repositories/incubator';
 
-import type {
-	IInitIncubationEventInput,
-	IInitIncubationEventOutput,
-} from '@interfaces/ios/ws/initIncubationEvent';
-import type { IIncubation } from '@interfaces/models/incubation';
+import type { IInitIncubationEventInput } from '@interfaces/ios/ws/initIncubationEvent';
 import type { WebSocket } from 'ws';
 import type { SenderCommunicator } from '@services/communicateIncubator/SenderCommunicator';
 
@@ -24,14 +20,14 @@ export class InitIncubationEventHandler {
 
 		if (!checkHasActiveIncubationFlow.export()) {
 			const initIncubationData = getInitIncubationDataFlow.export();
+			console.log(initIncubationData);
 			sender.sendMessage(initIncubationData);
 		}
+
 		this.notifyActiveIncubation(ws);
 	}
 
-	public async getInitIncubationData(
-		dto: InitIncubationDto
-	): Promise<Either<null, Omit<IIncubation, 'status'>>> {
+	public async getInitIncubationData(dto: InitIncubationDto) {
 		try {
 			await dto.validate();
 			return new Right(dto.export());
@@ -40,15 +36,6 @@ export class InitIncubationEventHandler {
 			console.error(message);
 			return new Left(null);
 		}
-	}
-
-	public getOutput(initIncubationData: Omit<IIncubation, 'status'>): IInitIncubationEventOutput {
-		return {
-			eventName: WSDataEvent.INIT_INCUBATION,
-			data: {
-				...initIncubationData,
-			},
-		};
 	}
 
 	private notifyActiveIncubation(ws: WebSocket) {

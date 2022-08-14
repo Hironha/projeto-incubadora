@@ -24,16 +24,16 @@ export class IncubationInitializedEventHandler {
 		const incubationInitializedData = getIncubationInitializedFlow.export();
 
 		const saveIncubationFlow = await this.incubatorRepository.saveIncubationInitialized(
-			incubationInitializedData
+			incubationInitializedData.data
 		);
 		if (saveIncubationFlow.isLeft()) console.error(saveIncubationFlow.export());
 
-		await callback(this.getOutput(incubationInitializedData));
+		await callback(incubationInitializedData);
 	}
 
 	private async getIncubationInitializedData(
 		dto: IncubationInitializedDto
-	): Promise<Either<null, IIncubation>> {
+	): Promise<Either<null, IIncubationInitializedEventOutput>> {
 		try {
 			await dto.validate();
 			return new Right(dto.export());
@@ -42,14 +42,5 @@ export class IncubationInitializedEventHandler {
 			console.error(message);
 			return new Left(null);
 		}
-	}
-
-	private getOutput(initIncubationData: IIncubation): IIncubationInitializedEventOutput {
-		return {
-			eventName: WSDataEvent.INCUBATION_INITIALIZED,
-			data: {
-				...initIncubationData,
-			},
-		};
 	}
 }

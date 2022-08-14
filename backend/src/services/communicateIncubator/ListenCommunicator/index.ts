@@ -5,7 +5,6 @@ import { InitIncubationEventHandler } from './InitIncubationEventHandler';
 
 import type { CloseEvent, ErrorEvent, RawData, WebSocket } from 'ws';
 import type { IConnectionEventOutput } from '@interfaces/ios/ws/connectionEvent';
-import type { IInitIncubationEventOutput } from '@interfaces/ios/ws/initIncubationEvent';
 
 export class ListenCommunicator {
 	private listeners: Map<number, WebSocket> = new Map();
