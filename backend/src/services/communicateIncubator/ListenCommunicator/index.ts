@@ -1,12 +1,8 @@
 import { WSDataEntity } from '@utils/entity/WSDataEntity';
-import {
-	WSDataEvent,
-	type WSMessage,
-	type EventHandlers,
-} from '@interfaces/utility/connection';
+import { WSDataEvent, type WSMessage, type EventHandlers } from '@interfaces/utility/connection';
 
-import type { CloseEvent, ErrorEvent, MessageEvent, WebSocket } from 'ws';
-import type { IConnectionDataOuput } from '@interfaces/ios/ws/connectionData';
+import type { CloseEvent, ErrorEvent, RawData, WebSocket } from 'ws';
+import type { IConnectionEventOutput } from '@interfaces/ios/ws/connectionEvent';
 
 export class ListenCommunicator {
 	private listeners: Map<number, WebSocket> = new Map();
@@ -16,31 +12,34 @@ export class ListenCommunicator {
 	public addListener(ws: WebSocket, callbacks: Partial<EventHandlers> = {}) {
 		const key = this.listeners.size;
 		this.listeners.set(this.listeners.size, ws);
-
-		const connectionData: IConnectionDataOuput = {
-			eventName: WSDataEvent.CONNECTION,
-			data: true,
-		};
-
-		ws.send(JSON.stringify(connectionData));
-		// ws.on('message', async (message, isBinary) => {
-		// 	const data = new WSDataEntity<any>(message, isBinary);
-		// 	console.log(await data.json());
-		// });
+		this.notifyConnection(ws);
 		ws.onerror = this.handleErrorEvent(key, callbacks.onerror);
 		ws.onclose = this.handleCloseEvent(key, callbacks.onclose);
+		ws.on('message', this.handleMessageEvent(callbacks.onmessage));
 	}
 
 	public broadcast<T extends WSMessage<any>>(payload: T) {
 		this.listeners.forEach((ws) => ws.send(JSON.stringify(payload)));
 	}
 
-	private handleMessageEvent(callback?: EventHandlers['onmessage']) {
-		return async (event: MessageEvent, isBinary: boolean) => {
-			const dataEntity = new WSDataEntity(event.data, isBinary);
-			const message = await dataEntity.string();
+	private notifyConnection(ws: WebSocket) {
+		const connectionData: IConnectionEventOutput = {
+			eventName: WSDataEvent.CONNECTION,
+			data: true,
+		};
 
-			if (message && callback) await callback(message);
+		ws.send(JSON.stringify(connectionData));
+	}
+
+	private handleMessageEvent(callback?: EventHandlers['onmessage']) {
+		return async (data: RawData, isBinary: boolean) => {
+			const dataEntity = new WSDataEntity(data, isBinary);
+			const message = await dataEntity.json<WSMessage<any>>();
+
+			if (message && callback) {
+				await callback(message);
+				console.log(message);
+			}
 		};
 	}
 

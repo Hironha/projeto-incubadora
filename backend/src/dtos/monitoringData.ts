@@ -18,7 +18,7 @@ export class MonitoringDataDto
 
 	@IsIn(['on', 'off'])
 	@IsNotEmpty({ message: messages.isRequired })
-	bulbStatus: 'on' | 'off';
+	bulb_status: 'on' | 'off';
 
 	constructor(input: Partial<IMonitoringData>) {
 		super(input);
@@ -27,7 +27,7 @@ export class MonitoringDataDto
 	public export(): IMonitoringData {
 		return {
 			temperature: this.temperature,
-			bulbStatus: this.bulbStatus,
+			bulb_status: this.bulb_status,
 			humidity: this.humidity,
 		};
 	}

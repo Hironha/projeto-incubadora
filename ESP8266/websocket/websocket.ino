@@ -93,7 +93,7 @@ void loopSensor() {
   */
 
   if (checkSensorInterval(interval)) {
-    //Serial.printf("%.2f   %.2f\n", humidity, temperature);
+    Serial.printf("%.2f   %.2f\n", 78.3, 36.5);
     sendSensorData(78.3, 26.5);
   }
 }

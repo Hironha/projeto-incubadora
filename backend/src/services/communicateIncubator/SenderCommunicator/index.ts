@@ -1,5 +1,5 @@
 import { WSDataEntity } from '@utils/entity/WSDataEntity';
-import type { WebSocket, ErrorEvent, CloseEvent, MessageEvent } from 'ws';
+import type { WebSocket, ErrorEvent, CloseEvent, MessageEvent, RawData } from 'ws';
 import type { EventHandlers, WSMessage } from '@interfaces/utility/connection';
 
 export class SenderCommunicator {
@@ -28,8 +28,8 @@ export class SenderCommunicator {
 	public close() {}
 
 	private handleMessageEvent(callback?: EventHandlers['onmessage']) {
-		return async (event: MessageEvent, isBinary: boolean) => {
-			const dataEntity = new WSDataEntity(event.data, isBinary);
+		return async (data: RawData, isBinary: boolean) => {
+			const dataEntity = new WSDataEntity(data, isBinary);
 			const message = await dataEntity.json<WSMessage<any>>();
 
 			if (message && callback) await callback(message);

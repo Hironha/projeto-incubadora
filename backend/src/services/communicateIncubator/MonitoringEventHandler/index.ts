@@ -1,34 +1,43 @@
 import { MonitoringDataDto } from '@dtos/monitoringData';
 
 import { Left, Right, type Either } from '@utils/management';
+import { SensoredDataStore } from './SensoredDataStore';
 
 import type { IMonitoringData } from '@interfaces/utility/monitoring';
 import type {
 	IMonitoringEventInput,
 	IMonitoringEventOutput,
-} from '@interfaces/ios/ws/monitoringData';
+} from '@interfaces/ios/ws/monitoringEvent';
 import { WSDataEvent } from '@interfaces/utility/connection';
 
 export class MonitoringEventHandler {
-	private monitoringDataDto: MonitoringDataDto;
-
-	constructor(event: IMonitoringEventInput) {
-		this.monitoringDataDto = new MonitoringDataDto(event.data);
-	}
+	constructor(private sendoredDataStore = new SensoredDataStore()) {}
 
 	public async exec(
+		event: IMonitoringEventInput,
 		callback: (data: IMonitoringEventOutput) => void | Promise<void>
 	) {
-		const getMonitoringDataFlow = await this.getMonitoringData();
+		const dto = new MonitoringDataDto(event.data);
+		const getMonitoringDataFlow = await this.getMonitoringData(dto);
 		if (getMonitoringDataFlow.isLeft()) return getMonitoringDataFlow.export();
 
-		await callback(this.getOutput(getMonitoringDataFlow.export()));
+		const monitoringData = getMonitoringDataFlow.export();
+
+		await this.sendoredDataStore.add({
+			humidity: monitoringData.humidity,
+			temperature: monitoringData.temperature,
+			sensored_at: new Date().toUTCString(),
+		});
+
+		await callback(this.getOutput(monitoringData));
 	}
 
-	public async getMonitoringData(): Promise<Either<null, IMonitoringData>> {
+	public async getMonitoringData(
+		dto: MonitoringDataDto
+	): Promise<Either<null, IMonitoringData>> {
 		try {
-			await this.monitoringDataDto.validate();
-			return new Right(this.monitoringDataDto.export());
+			await dto.validate();
+			return new Right(dto.export());
 		} catch (err) {
 			const message = (err as Error).message;
 			console.error(message);
