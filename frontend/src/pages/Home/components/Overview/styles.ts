@@ -8,11 +8,25 @@ export const Container = styled.div`
 	gap: 1.6rem;
 
 	width: 100%;
-	max-height: inherit;
+	height: calc(100% - 3.2rem);
 	margin: 0 auto;
 	padding: 1rem 0;
 	overflow-x: hidden;
-	overflow-y: auto;
+	overflow-y: scroll;
+
+	::-webkit-scrollbar {
+		width: 8px;
+		border-radius: 5px;
+	}
+
+	::-webkit-scrollbar-track {
+		background: ${props => props.theme.colors.secondary};
+	}
+
+	::-webkit-scrollbar-thumb {
+		background: ${props => props.theme.colors.main};
+		border-radius: 5px;
+	}
 `;
 
 export const LoadingContainer = styled.div`

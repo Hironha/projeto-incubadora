@@ -7,6 +7,7 @@ export const Underline = styled(motion.div)`
 	left: 0;
 	right: 0;
 	height: 2px;
+	border-radius: 5px;
 	background: ${props => props.theme.colors.blue};
 `;
 
