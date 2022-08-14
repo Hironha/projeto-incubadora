@@ -1,25 +1,34 @@
 import { WSDataEntity } from '@utils/entity/WSDataEntity';
+import { MonitoringEventHandler } from './MonitoringEventHandler';
+import { IncubationInitializedEventHandler } from './IncubationInitializedEventHandler';
+
 import type { WebSocket, ErrorEvent, CloseEvent, RawData } from 'ws';
-import type { EventHandlers, WSMessage } from '@interfaces/utility/connection';
+import { WSDataEvent, type WSMessage } from '@interfaces/utility/connection';
+import type { ListenCommunicator } from '../ListenCommunicator';
+import type { IMonitoringEventOutput } from '@interfaces/ios/ws/monitoringEvent';
+import type { IIncubationInitializedEventOutput } from '@interfaces/ios/ws/incubationInitializedEvent';
 
 export class SenderCommunicator {
 	private ttl: number = 30 * 1000;
 	private sender: WebSocket | null = null;
 	private timeout: NodeJS.Timeout | null = null;
 
-	constructor() {}
+	constructor(
+		private monitoringEventHandler = new MonitoringEventHandler(),
+		private incubationInitializedEventHandler = new IncubationInitializedEventHandler()
+	) {}
 
-	public setSender(ws: WebSocket, callbacks: Partial<EventHandlers> = {}) {
+	public setSender(ws: WebSocket, listeners: ListenCommunicator) {
 		if (this.sender) this.sender.close(1000, 'substituido');
 		this.sender = ws;
 
 		console.log('Established connection with Sender');
 
-		ws.onopen = callbacks.onopen || null;
-		ws.onclose = this.handleCloseEvent(callbacks.onclose);
-		ws.onerror = this.handleErrorEvent(callbacks.onerror);
-		ws.on('message', this.handleMessageEvent(callbacks.onmessage));
-		ws.on('ping', this.handlePingEvent(callbacks.onping));
+		// ws.onopen = callbacks.onopen || null;
+		ws.onerror = this.handleErrorEvent();
+		ws.onclose = this.handleCloseEvent(listeners);
+		ws.on('ping', this.handlePingEvent());
+		ws.on('message', this.handleMessageEvent(listeners));
 	}
 
 	public sendMessage<T>(message: T) {
@@ -30,27 +39,35 @@ export class SenderCommunicator {
 
 	public close() {}
 
-	private handleMessageEvent(callback?: EventHandlers['onmessage']) {
+	private handleMessageEvent(listeners: ListenCommunicator) {
 		return async (data: RawData, isBinary: boolean) => {
 			const dataEntity = new WSDataEntity(data, isBinary);
 			const message = await dataEntity.json<WSMessage<any>>();
+			if (!message) return;
 
-			if (message && callback) await callback(message);
+			if (message.eventName === WSDataEvent.MONITORING) {
+				const callback = (output: IMonitoringEventOutput) => listeners.broadcast(output);
+				await this.monitoringEventHandler.exec(message, callback);
+			}
+
+			if (message.eventName === WSDataEvent.INCUBATION_INITIALIZED) {
+				console.log(message);
+				const callback = (output: IIncubationInitializedEventOutput) => listeners.broadcast(output);
+				await this.incubationInitializedEventHandler.exec(message, callback);
+			}
 		};
 	}
 
-	private handlePingEvent(callback?: EventHandlers['onping']) {
+	private handlePingEvent() {
 		return async (buffer: Buffer) => {
-			callback && (await callback(buffer));
 			if (!this.sender) return;
 			this.sender.pong();
 			this.setSenderTimeout();
 		};
 	}
 
-	private handleErrorEvent(callback?: EventHandlers['onerror']) {
+	private handleErrorEvent() {
 		return async (event: ErrorEvent) => {
-			callback && (await callback(event));
 			if (!this.sender) return;
 			this.sender.close(1000, 'error');
 			this.sender = null;
@@ -58,9 +75,8 @@ export class SenderCommunicator {
 		};
 	}
 
-	private handleCloseEvent(callback?: EventHandlers['onclose']) {
+	private handleCloseEvent(getListeners: ListenCommunicator) {
 		return async (event: CloseEvent) => {
-			callback && (await callback(event));
 			this.sender = null;
 		};
 	}
