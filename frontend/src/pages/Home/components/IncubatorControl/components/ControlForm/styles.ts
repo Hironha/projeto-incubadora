@@ -1,12 +1,12 @@
 import styled from "styled-components";
-import { Button } from "@components/Button";
-import { Input } from '@components/Input'
+import { motion } from "framer-motion";
+import { Input } from "@components/Input";
 
 export const CustomInput = styled(Input)`
 	align-self: flex-start;
-`
+`;
 
-export const Title = styled.h2`
+export const Title = styled(motion.h2)`
 	font-size: 2rem;
 	text-align: center;
 `;
@@ -28,7 +28,7 @@ export const CategoryInputsWrapper = styled.div`
 	}
 `;
 
-export const CategoryWrapper = styled.div`
+export const CategoryWrapper = styled(motion.div)`
 	width: 80%;
 	display: flex;
 	flex-direction: column;
@@ -37,11 +37,17 @@ export const CategoryWrapper = styled.div`
 	align-items: center;
 `;
 
-export const SubmitButton = styled(Button)`
+export const SubmitContainer = styled(motion.div)`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	gap: 1.2rem;
+
 	margin-top: 1.2rem;
 `;
 
-export const Container = styled.div`
+export const Container = styled(motion.div)`
 	display: flex;
 	flex-direction: column;
 	gap: 2.6rem;

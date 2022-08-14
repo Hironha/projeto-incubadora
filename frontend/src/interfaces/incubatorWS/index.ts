@@ -1,4 +1,5 @@
 export enum IncubatorMessageEvent {
+	ERROR = 'error',
 	MONITORING = "monitoring",
 	CONNECTION = "connection",
 	INIT_INCUBATION = "initIncubation",

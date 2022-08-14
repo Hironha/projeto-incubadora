@@ -3,6 +3,7 @@ export enum ConnectionCloseEvent {
 }
 
 export enum WSDataEvent {
+	ERROR = 'error',
 	MONITORING = 'monitoring',
 	CONNECTION = 'connection',
 	INIT_INCUBATION = 'initIncubation',

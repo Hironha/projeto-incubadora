@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-
+import { LayoutGroup } from "framer-motion";
 import { Form } from "@components/Form";
+import { Button } from "@components/Button";
 import {
 	Container,
 	Title,
@@ -8,7 +9,7 @@ import {
 	CategoryTitle,
 	CategoryInputsWrapper,
 	CustomInput,
-	SubmitButton,
+	SubmitContainer,
 } from "./styles";
 
 import { regexes } from "@utils/regexes";
@@ -22,11 +23,12 @@ export type FormValues = {
 };
 
 type ControlFormProps = {
+	errorMessage?: React.ReactNode;
 	isSubmitting?: boolean;
 	onSubmit: (values: FormValues) => void | Promise<void>;
 };
 
-export const ControlForm = ({ isSubmitting, onSubmit }: ControlFormProps) => {
+export const ControlForm = ({ errorMessage, isSubmitting, onSubmit }: ControlFormProps) => {
 	const [isValid, setIsValid] = useState(false);
 	const form = Form.useForm<FormValues>();
 
@@ -69,10 +71,10 @@ export const ControlForm = ({ isSubmitting, onSubmit }: ControlFormProps) => {
 			onSubmit={handleSubmit}
 			validationSchema={validationSchema}
 		>
-			<Container>
-				<Title>Configuração da Incubadora</Title>
+			<Container layout>
+				<Title layoutId="control-form-title">Configuração da Incubadora</Title>
 
-				<CategoryWrapper>
+				<CategoryWrapper layoutId="motor-inputs-wrapper">
 					<CategoryTitle>Controle do motor</CategoryTitle>
 					<CategoryInputsWrapper>
 						<Form.Item
@@ -90,7 +92,7 @@ export const ControlForm = ({ isSubmitting, onSubmit }: ControlFormProps) => {
 					</CategoryInputsWrapper>
 				</CategoryWrapper>
 
-				<CategoryWrapper>
+				<CategoryWrapper layoutId="sensor-inputs-wrapper">
 					<CategoryTitle>Controle da temperatura</CategoryTitle>
 					<CategoryInputsWrapper>
 						<Form.Item
@@ -110,13 +112,16 @@ export const ControlForm = ({ isSubmitting, onSubmit }: ControlFormProps) => {
 					</CategoryInputsWrapper>
 				</CategoryWrapper>
 
-				<SubmitButton
-					htmlType="submit"
-					styleType={isValid && !isSubmitting ? "primary" : "secondary"}
-					loading={isSubmitting ? { size: "small" } : undefined}
-				>
-					Iniciar incubação
-				</SubmitButton>
+				<SubmitContainer>
+					{errorMessage}
+					<Button
+						htmlType="submit"
+						styleType={isValid && !isSubmitting ? "primary" : "secondary"}
+						loading={isSubmitting ? { size: "small" } : undefined}
+					>
+						Iniciar incubação
+					</Button>
+				</SubmitContainer>
 			</Container>
 		</Form.Provider>
 	);

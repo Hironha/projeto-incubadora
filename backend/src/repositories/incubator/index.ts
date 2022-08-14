@@ -49,7 +49,7 @@ export class IncubatorRepository {
 		}
 	}
 
-	private async getActiveIncubation() {
+	public async getActiveIncubation() {
 		try {
 			const snapshot = await db
 				.collection(this.incubationsCollection)

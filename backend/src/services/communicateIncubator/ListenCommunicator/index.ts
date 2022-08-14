@@ -19,7 +19,7 @@ export class ListenCommunicator {
 		console.log('Established connection with a Listener');
 		ws.onerror = this.handleErrorEvent(key);
 		ws.onclose = this.handleCloseEvent(key);
-		ws.on('message', this.handleMessageEvent(sender));
+		ws.on('message', this.handleMessageEvent(key, sender));
 	}
 
 	public broadcast<T extends WSMessage<any>>(payload: T) {
@@ -35,16 +35,15 @@ export class ListenCommunicator {
 		ws.send(JSON.stringify(connectionData));
 	}
 
-	private handleMessageEvent(sender: SenderCommunicator) {
+	private handleMessageEvent(key: number, sender: SenderCommunicator) {
 		return async (data: RawData, isBinary: boolean) => {
+			const ws = this.listeners.get(key);
 			const dataEntity = new WSDataEntity(data, isBinary);
 			const message = await dataEntity.json<WSMessage<any>>();
-			if (!message) return;
+			if (!message || !ws) return;
 
 			if (message.eventName === WSDataEvent.INIT_INCUBATION) {
-				const callback = (output: IInitIncubationEventOutput) => sender.sendMessage(output);
-
-				await this.initIncubationEventHandler.exec(message, callback);
+				await this.initIncubationEventHandler.exec(message, ws, sender);
 			}
 		};
 	}

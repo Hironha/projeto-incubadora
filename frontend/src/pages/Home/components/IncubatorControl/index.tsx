@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Loading } from "@components/Loading";
 import { ControlForm } from "./components";
-import { LoadingContainer } from "./styles";
+import { LoadingContainer, ErrorMessage } from "./styles";
 
 import { useWS, WSStatus } from "@hooks/useWS";
 import { inputParser } from "./utils/inputParser";
@@ -16,6 +16,8 @@ import type { FormValues as ControlFormValues } from "./components/ControlForm";
 
 export const IncubatorControl = () => {
 	const navigate = useNavigate();
+	const startIncubationTimeout = useRef<NodeJS.Timeout | null>(null);
+	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const { getWS, status, unmountWS } = useWS({
@@ -36,7 +38,13 @@ export const IncubatorControl = () => {
 			},
 		};
 		if (status.value === WSStatus.CONNECTED) {
+			setErrorMessage(null);
 			setIsSubmitting(true);
+
+			startIncubationTimeout.current = setTimeout(() => {
+				setIsSubmitting(false);
+				setErrorMessage("Erro ao inicializar incubação");
+			}, 15 * 1000);
 			ws.send(JSON.stringify(message));
 		}
 	};
@@ -46,13 +54,19 @@ export const IncubatorControl = () => {
 			const ws = await getWS();
 
 			ws.onmessage = event => {
-				const message: IncubatorMessage<boolean> = JSON.parse(event.data);
+				const message: IncubatorMessage<any> = JSON.parse(event.data);
 				switch (message.eventName) {
 					case IncubatorMessageEvent.CONNECTION:
 						status.setStatus(WSStatus.CONNECTED);
 						break;
 					case IncubatorMessageEvent.INCUBATION_INITIALIZED:
+						if (startIncubationTimeout.current) clearTimeout(startIncubationTimeout.current);
 						setIsSubmitting(false);
+						break;
+					case IncubatorMessageEvent.ERROR:
+						if (startIncubationTimeout.current) clearTimeout(startIncubationTimeout.current);
+						setIsSubmitting(false);
+						setErrorMessage(message.data as string);
 						break;
 				}
 			};
@@ -75,5 +89,11 @@ export const IncubatorControl = () => {
 		);
 	}
 
-	return <ControlForm isSubmitting={isSubmitting} onSubmit={handleControlFormSubmit}></ControlForm>;
+	return (
+		<ControlForm
+			errorMessage={errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+			isSubmitting={isSubmitting}
+			onSubmit={handleControlFormSubmit}
+		></ControlForm>
+	);
 };
