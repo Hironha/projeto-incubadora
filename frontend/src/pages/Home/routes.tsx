@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 
 import { PageLayout } from "@components/Layout";
+import { VerifyAuth } from "@components/VerifyAuth";
 import { IncubatorControl, Overview, Tabs } from "./components";
 import { PageWrapper } from "./styles";
 
@@ -15,12 +16,14 @@ export const useHomeRoutes = (): RouteObject[] => {
 	];
 
 	const homeContainer = (
-		<PageLayout>
-			<PageWrapper>
-				<Tabs tabs={tabs} />
-				<Outlet />
-			</PageWrapper>
-		</PageLayout>
+		<VerifyAuth>
+			<PageLayout>
+				<PageWrapper>
+					<Tabs tabs={tabs} />
+					<Outlet />
+				</PageWrapper>
+			</PageLayout>
+		</VerifyAuth>
 	);
 
 	return [
