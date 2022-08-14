@@ -17,11 +17,11 @@ import type { FormValues as ControlFormValues } from "./components/ControlForm";
 export const IncubatorControl = () => {
 	const navigate = useNavigate();
 	const startIncubationTimeout = useRef<NodeJS.Timeout | null>(null);
-	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
 	const { getWS, status, unmountWS } = useWS({
-		url: "ws://192.168.0.2:80/incubator/listen",
+		url: `ws://${import.meta.env.VITE_API_HOSTNAME}/incubator/listen`,
 		reconnect: true,
 	});
 
@@ -34,7 +34,7 @@ export const IncubatorControl = () => {
 				incubation_duration: inputParser.timeInputToNumber(values.incubationDuration),
 				min_temperature: inputParser.temperatureInputToNumber(values.minTemperature),
 				max_temperature: inputParser.temperatureInputToNumber(values.maxTemperature),
-				started_at: new Date().toISOString(),
+				started_at: new Date().getTime(),
 			},
 		};
 		if (status.value === WSStatus.CONNECTED) {
@@ -53,21 +53,27 @@ export const IncubatorControl = () => {
 		const initWS = async () => {
 			const ws = await getWS();
 
+			const handleConnectionEvent = () => status.setStatus(WSStatus.CONNECTED);
+			const handleIncubationInitializedEvent = (data: IncubatorMessage<any>) => {
+				if (startIncubationTimeout.current) clearTimeout(startIncubationTimeout.current);
+				setIsSubmitting(false);
+				console.log(data);
+			};
+			const handleErrorEvent = (message: IncubatorMessage<any>) => {
+				if (startIncubationTimeout.current) clearTimeout(startIncubationTimeout.current);
+				setIsSubmitting(false);
+				setErrorMessage(message.data);
+			};
+
 			ws.onmessage = event => {
 				const message: IncubatorMessage<any> = JSON.parse(event.data);
 				switch (message.eventName) {
 					case IncubatorMessageEvent.CONNECTION:
-						status.setStatus(WSStatus.CONNECTED);
-						break;
+						return handleConnectionEvent();
 					case IncubatorMessageEvent.INCUBATION_INITIALIZED:
-						if (startIncubationTimeout.current) clearTimeout(startIncubationTimeout.current);
-						setIsSubmitting(false);
-						break;
+						return handleIncubationInitializedEvent(event.data);
 					case IncubatorMessageEvent.ERROR:
-						if (startIncubationTimeout.current) clearTimeout(startIncubationTimeout.current);
-						setIsSubmitting(false);
-						setErrorMessage(message.data as string);
-						break;
+						return handleErrorEvent(event.data);
 				}
 			};
 		};
@@ -94,6 +100,6 @@ export const IncubatorControl = () => {
 			errorMessage={errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
 			isSubmitting={isSubmitting}
 			onSubmit={handleControlFormSubmit}
-		></ControlForm>
+		/>
 	);
 };

@@ -1,5 +1,6 @@
 import { type HTMLMotionProps, motion } from "framer-motion";
 import React, { createContext, useEffect } from "react";
+import { useState } from "react";
 
 import type { SchemaOf } from "yup";
 import { type FormInstance } from "../../useForm";
@@ -24,18 +25,23 @@ export const FormProvider = <T,>({
 	onKeyDownCapture,
 	...formProps
 }: FormProviderProps<T>) => {
+	const [submitting, setSubmitting] = useState(false);
+
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
+		if (submitting) return;
+		setSubmitting(true);
 		const isValid = await validationSchema
 			.validate(formInstance.getFieldValues())
 			.then(() => true)
 			.catch(() => false);
 		if (!isValid) return;
 		await onSubmit(formInstance.getFieldValues());
+		setSubmitting(false);
 	};
 
 	const handleKeyDownCapture: React.KeyboardEventHandler<HTMLFormElement> = event => {
-		if (event.key === "Enter") handleSubmit(event);
+		// if (event.key === "Enter") handleSubmit(event);
 
 		onKeyDownCapture && onKeyDownCapture(event);
 	};

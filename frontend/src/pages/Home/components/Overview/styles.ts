@@ -7,10 +7,10 @@ export const Container = styled.div`
 	align-items: center;
 	gap: 1.6rem;
 
-	width: 100%;
+	width: calc(100% - 2rem);
 	height: calc(100% - 3.2rem);
 	margin: 0 auto;
-	padding: 1rem 0;
+	padding: 1rem;
 	overflow-x: hidden;
 	overflow-y: scroll;
 

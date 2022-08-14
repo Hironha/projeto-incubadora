@@ -32,5 +32,5 @@ export type InitIncubationValues = {
 	incubation_duration: number;
 	max_temperature: number;
 	min_temperature: number;
-	started_at: string
+	started_at: number
 };

@@ -40,7 +40,9 @@ export const ControlForm = ({ errorMessage, isSubmitting, onSubmit }: ControlFor
 	};
 
 	const handleSubmit = async (values: FormValues) => {
-		onSubmit(values);
+		if (!isSubmitting) {
+			await onSubmit(values);
+		}
 	};
 
 	const maskTemperature = (input: string) => {
