@@ -1,4 +1,4 @@
-enum IncubationStatus {
+export enum IncubationStatus {
 	ACTIVE = 'active',
 	FINISHED = 'finished',
 	CANCELED = 'canceled',
@@ -11,4 +11,8 @@ export interface IIncubation {
 	max_temperature: number;
 	status: IncubationStatus;
 	started_at: string;
+}
+
+export interface IIncubationDocData extends IIncubation {
+	id: string;
 }

@@ -14,12 +14,22 @@
 
 #define MONITORING_EVENT "monitoring"
 #define INIT_INCUBATION_EVENT "initIncubation"
+#define INCUBATION_INITIALIZED_EVENT "incubationInitialized"
 
 #define BULB_ON "on"
 #define BULB_OFF "off"
 
+typedef struct IncubationData {
+  unsigned long duration;
+  unsigned long roll_interval;
+  int min_temperature;
+  int max_temperature;
+} IncubationData;
+
 const char *ssid = "AP_60";
 const char *password = "145632789";
+
+IncubationData *incubationData = NULL;
 
 WebSocketsClient webSocket;
 
@@ -46,18 +56,31 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
   }
 }
 
-void handleStartIncubation(StaticJsonDocument<256> *incubationData) {
-  String eventName = (*incubationData)["eventName"];
-  unsigned int rollInterval = (*incubationData)["data"]["roll_interval"];
-  unsigned int duration = (*incubationData)["data"]["incubation_duration"];
-  unsigned int minTemperature = (*incubationData)["data"]["min_temperature"];
-  unsigned int maxTemperature = (*incubationData)["data"]["max_temperature"];
+void handleStartIncubation(StaticJsonDocument<256> *json) {
+  String buffer;
+  StaticJsonDocument<256> doc;
+
+  doc = *json;
+  doc["eventName"] = INCUBATION_INITIALIZED_EVENT;
+  doc["data"]["status"] = "active";
+  serializeJson(doc, buffer);
+  webSocket.sendTXT(buffer);
   
-  Serial.println(eventName);
-  Serial.println(rollInterval);
-  Serial.println(duration);
-  Serial.println(minTemperature);
-  Serial.println(maxTemperature);
+  if(incubationData != NULL){
+    delete incubationData;
+    incubationData = NULL;
+  }
+  
+  incubationData = new IncubationData;
+  incubationData->roll_interval = (*json)["data"]["roll_interval"];
+  incubationData->duration = (*json)["data"]["incubation_duration"];
+  incubationData->min_temperature = (*json)["data"]["min_temperature"];
+  incubationData->max_temperature = (*json)["data"]["max_temperature"];
+  
+  Serial.println(incubationData->roll_interval);
+  Serial.println(incubationData->duration);
+  Serial.println(incubationData->min_temperature);
+  Serial.println(incubationData->max_temperature);
 }
 
 void setup() {
@@ -78,20 +101,26 @@ void setup() {
   webSocket.setReconnectInterval(3000);
   webSocket.enableHeartbeat(15000, 3000, 2);
 
+  while(incubationData == NULL) {
+    webSocket.loop();
+  }
+
   stepper.setMaxSpeed(80);
   stepper.setAcceleration(200);
-  stepper.setInterval(10);
   stepper.setSteps(20);
+  stepper.setInterval(incubationData->roll_interval);
 }
 
 void loop() {
-  if (WiFi.status() != WL_CONNECTED) {
+  if (WiFi.status() != WL_CONNECTED || incubationData == NULL) {
     return;
   }
 
   webSocket.loop();
   loopSensor();
   stepper.loop();
+
+  delay(100);
 }
 
 void loopSensor() {
@@ -106,9 +135,9 @@ void loopSensor() {
   }
 
   
-  if(temperature <= 36){
+  if(temperature <= incubationData->min_temperature){
     digitalWrite(RELAY_PIN, HIGH);
-  }else if (temperature >= 38) {
+  }else if (temperature >= incubationData->max_temperature) {
     digitalWrite(RELAY_PIN, LOW);
   }
   */
@@ -124,7 +153,7 @@ void sendSensorData(float humidity, float temperature) {
   StaticJsonDocument<256> doc;
 
   doc["eventName"] = MONITORING_EVENT;
-  doc["data"]["bulbStatus"] = BULB_ON;
+  doc["data"]["bulb_status"] = BULB_ON;
   doc["data"]["humidity"] = humidity;
   doc["data"]["temperature"] = temperature;
   serializeJson(doc, buffer);

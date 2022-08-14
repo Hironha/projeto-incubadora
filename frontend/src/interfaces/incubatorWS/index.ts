@@ -2,6 +2,7 @@ export enum IncubatorMessageEvent {
 	MONITORING = "monitoring",
 	CONNECTION = "connection",
 	INIT_INCUBATION = "initIncubation",
+	INCUBATION_INITIALIZED = 'incubationInitialized'
 }
 
 export enum IncubatorCloseEvent {

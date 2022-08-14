@@ -1,14 +1,12 @@
-import { IsNotEmpty, IsNumber, IsRFC3339 } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsRFC3339 } from 'class-validator';
 import { Validator } from '@utils/validator';
 import { validationMessages as messages } from '@utils/validator/validations';
 import { IsBiggerThan } from '@utils/validator/decorators/isBiggerThan';
 
-import type { IIncubation } from '@interfaces/models/incubation';
+import { IIncubation, IncubationStatus } from '@interfaces/models/incubation';
 
-export class InitIncubationDto
-	extends Validator<Omit<IIncubation, 'status'>>
-	implements Omit<IIncubation, 'status'>
-{
+export class IncubationInitializedDto
+ extends Validator<IIncubation> implements IIncubation {
 	@IsNumber()
 	@IsNotEmpty({ message: messages.isRequired })
 	roll_interval: number;
@@ -32,17 +30,22 @@ export class InitIncubationDto
 	@IsNotEmpty({ message: messages.isRequired })
 	started_at: string;
 
-	constructor(input: Partial<Omit<IIncubation, 'status'>>) {
+	@IsEnum(IncubationStatus)
+	@IsNotEmpty({ message: messages.isRequired })
+	status: IncubationStatus;
+
+	constructor(input: Partial<IIncubation>) {
 		super(input);
 	}
 
-	public export(): Omit<IIncubation, 'status'> {
+	public export(): IIncubation {
 		return {
 			roll_interval: this.roll_interval,
 			incubation_duration: this.incubation_duration,
 			min_temperature: this.min_temperature,
 			max_temperature: this.max_temperature,
 			started_at: this.started_at,
+			status: this.status,
 		};
 	}
 }

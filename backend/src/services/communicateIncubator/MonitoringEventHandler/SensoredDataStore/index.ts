@@ -21,6 +21,8 @@ export class SensoredDataStore {
 			this.getMeanSensoredData()
 		);
 
+		if (saveSensorDataFlow.isLeft()) console.error(saveSensorDataFlow.export());
+
 		if (saveSensorDataFlow.isRight()) {
 			this.sensoredData = [];
 		}

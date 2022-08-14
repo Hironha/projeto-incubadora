@@ -20,8 +20,12 @@ export class CommunicateIncubatorService {
 
 		const handleMessageEvent = async (message: WSMessage<any>) => {
 			if (message.eventName === WSDataEvent.MONITORING) {
-				const callback = (output: IMonitoringEventOutput) => this.broadcast(output);
+				const callback = (output: IMonitoringEventOutput) => this.listeners.broadcast(output);
 				await monitoringEventHandler.exec(message, callback);
+			}
+
+			if (message.eventName === WSDataEvent.INCUBATION_INITIALIZED) {
+				this.listeners.broadcast(message);
 			}
 		};
 
@@ -39,9 +43,5 @@ export class CommunicateIncubatorService {
 		};
 
 		this.listeners.addListener(ws, { onmessage: handleMessageEvent });
-	}
-
-	private async broadcast(output: IMonitoringEventOutput) {
-		this.listeners.broadcast(output);
 	}
 }

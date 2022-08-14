@@ -1,10 +1,11 @@
-import { useEffect } from "react";
-import { useWS, WSStatus } from "@hooks/useWS";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { Loading } from "@components/Loading";
 import { ControlForm } from "./components";
 import { LoadingContainer } from "./styles";
 
+import { useWS, WSStatus } from "@hooks/useWS";
 import { inputParser } from "./utils/inputParser";
 import {
 	IncubatorMessageEvent,
@@ -14,6 +15,9 @@ import {
 import type { FormValues as ControlFormValues } from "./components/ControlForm";
 
 export const IncubatorControl = () => {
+	const navigate = useNavigate();
+	const [isSubmitting, setIsSubmitting] = useState(false);
+
 	const { getWS, status, unmountWS } = useWS({
 		url: "ws://192.168.0.2:80/incubator/listen",
 		reconnect: true,
@@ -28,10 +32,11 @@ export const IncubatorControl = () => {
 				incubation_duration: inputParser.timeInputToNumber(values.incubationDuration),
 				min_temperature: inputParser.temperatureInputToNumber(values.minTemperature),
 				max_temperature: inputParser.temperatureInputToNumber(values.maxTemperature),
-				started_at: new Date().toISOString()
+				started_at: new Date().toISOString(),
 			},
 		};
 		if (status.value === WSStatus.CONNECTED) {
+			setIsSubmitting(true);
 			ws.send(JSON.stringify(message));
 		}
 	};
@@ -39,11 +44,16 @@ export const IncubatorControl = () => {
 	useEffect(() => {
 		const initWS = async () => {
 			const ws = await getWS();
-			
+
 			ws.onmessage = event => {
 				const message: IncubatorMessage<boolean> = JSON.parse(event.data);
-				if (message.eventName === IncubatorMessageEvent.CONNECTION) {
-					status.setStatus(WSStatus.CONNECTED);
+				switch (message.eventName) {
+					case IncubatorMessageEvent.CONNECTION:
+						status.setStatus(WSStatus.CONNECTED);
+						break;
+					case IncubatorMessageEvent.INCUBATION_INITIALIZED:
+						setIsSubmitting(false);
+						break;
 				}
 			};
 		};
@@ -51,6 +61,11 @@ export const IncubatorControl = () => {
 		initWS();
 		return () => unmountWS();
 	}, []);
+
+	if (status.value === WSStatus.UNAUTHORIZED) {
+		navigate("/login");
+		return null;
+	}
 
 	if (status.value === WSStatus.CONNECTING) {
 		return (
@@ -60,5 +75,5 @@ export const IncubatorControl = () => {
 		);
 	}
 
-	return <ControlForm onSubmit={handleControlFormSubmit}></ControlForm>;
+	return <ControlForm isSubmitting={isSubmitting} onSubmit={handleControlFormSubmit}></ControlForm>;
 };

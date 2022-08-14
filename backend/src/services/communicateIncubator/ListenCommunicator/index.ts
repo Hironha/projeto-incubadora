@@ -13,6 +13,7 @@ export class ListenCommunicator {
 		const key = this.listeners.size;
 		this.listeners.set(this.listeners.size, ws);
 		this.notifyConnection(ws);
+		console.log('Established connection with a Listener');
 		ws.onerror = this.handleErrorEvent(key, callbacks.onerror);
 		ws.onclose = this.handleCloseEvent(key, callbacks.onclose);
 		ws.on('message', this.handleMessageEvent(callbacks.onmessage));
@@ -52,7 +53,6 @@ export class ListenCommunicator {
 		return async (event: CloseEvent) => {
 			callback && (await callback(event));
 			this.listeners.delete(key);
-			console.log(event.reason);
 		};
 	}
 }

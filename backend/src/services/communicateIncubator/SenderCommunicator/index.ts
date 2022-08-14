@@ -1,5 +1,5 @@
 import { WSDataEntity } from '@utils/entity/WSDataEntity';
-import type { WebSocket, ErrorEvent, CloseEvent, MessageEvent, RawData } from 'ws';
+import type { WebSocket, ErrorEvent, CloseEvent, RawData } from 'ws';
 import type { EventHandlers, WSMessage } from '@interfaces/utility/connection';
 
 export class SenderCommunicator {
@@ -13,6 +13,8 @@ export class SenderCommunicator {
 		if (this.sender) this.sender.close(1000, 'substituido');
 		this.sender = ws;
 
+		console.log('Established connection with Sender');
+
 		ws.onopen = callbacks.onopen || null;
 		ws.onclose = this.handleCloseEvent(callbacks.onclose);
 		ws.onerror = this.handleErrorEvent(callbacks.onerror);
@@ -21,6 +23,7 @@ export class SenderCommunicator {
 	}
 
 	public sendMessage<T>(message: T) {
+		console.log(`Sending message to Sender`, message);
 		if (!this.sender) return;
 		this.sender.send(JSON.stringify(message));
 	}

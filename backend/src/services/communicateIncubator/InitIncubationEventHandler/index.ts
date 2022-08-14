@@ -21,7 +21,6 @@ export class InitIncubationEventHandler {
 
 		const initIncubationData = getInitIncubationDataFlow.export();
 		await callback(this.getOutput(initIncubationData));
-    console.log(this.getOutput(initIncubationData))
 	}
 
 	public async getInitIncubationData(
