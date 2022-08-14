@@ -23,11 +23,11 @@ export class MonitoringEventHandler {
 
 		const monitoringData = getMonitoringDataFlow.export();
 
-		await this.sendoredDataStore.add({
-			humidity: monitoringData.humidity,
-			temperature: monitoringData.temperature,
-			sensored_at: new Date().toUTCString(),
-		});
+		// await this.sendoredDataStore.add({
+		// 	humidity: monitoringData.humidity,
+		// 	temperature: monitoringData.temperature,
+		// 	sensored_at: new Date().toUTCString(),
+		// });
 
 		await callback(this.getOutput(monitoringData));
 	}

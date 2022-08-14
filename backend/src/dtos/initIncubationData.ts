@@ -1,4 +1,4 @@
-import { IsDateString, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsNumber, IsRFC3339 } from 'class-validator';
 import { Validator } from '@utils/validator';
 import { validationMessages as messages } from '@utils/validator/validations';
 import { IsBiggerThan } from '@utils/validator/decorators/isBiggerThan';
@@ -28,7 +28,7 @@ export class InitIncubationDto
 	})
 	max_temperature: number;
 
-	@IsDateString()
+	@IsRFC3339()
 	@IsNotEmpty({ message: messages.isRequired })
 	started_at: string;
 

@@ -13,6 +13,7 @@
 #define STEPPER_DIR 0
 
 #define MONITORING_EVENT "monitoring"
+#define INIT_INCUBATION_EVENT "initIncubation"
 
 #define BULB_ON "on"
 #define BULB_OFF "off"
@@ -32,11 +33,31 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
       Serial.println("[WSc] Disconnected!");
       break;
     }
+    case WStype_TEXT: {
+      String event = (char*) payload;
+      StaticJsonDocument<256> eventJSON;
+      deserializeJson(eventJSON, event);
+      handleStartIncubation(&eventJSON);
+    }
     case WStype_CONNECTED: {
       Serial.println("[WSc] Connected to url");
       break;
     }
   }
+}
+
+void handleStartIncubation(StaticJsonDocument<256> *incubationData) {
+  String eventName = (*incubationData)["eventName"];
+  unsigned int rollInterval = (*incubationData)["data"]["roll_interval"];
+  unsigned int duration = (*incubationData)["data"]["incubation_duration"];
+  unsigned int minTemperature = (*incubationData)["data"]["min_temperature"];
+  unsigned int maxTemperature = (*incubationData)["data"]["max_temperature"];
+  
+  Serial.println(eventName);
+  Serial.println(rollInterval);
+  Serial.println(duration);
+  Serial.println(minTemperature);
+  Serial.println(maxTemperature);
 }
 
 void setup() {

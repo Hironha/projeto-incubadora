@@ -59,7 +59,6 @@ export class SenderCommunicator {
 		return async (event: CloseEvent) => {
 			callback && (await callback(event));
 			this.sender = null;
-			console.log(event.reason);
 		};
 	}
 

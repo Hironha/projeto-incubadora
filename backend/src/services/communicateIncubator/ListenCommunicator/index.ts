@@ -36,10 +36,7 @@ export class ListenCommunicator {
 			const dataEntity = new WSDataEntity(data, isBinary);
 			const message = await dataEntity.json<WSMessage<any>>();
 
-			if (message && callback) {
-				await callback(message);
-				console.log(message);
-			}
+			if (message && callback) await callback(message);
 		};
 	}
 

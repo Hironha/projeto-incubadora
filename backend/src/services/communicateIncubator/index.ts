@@ -3,10 +3,12 @@ import type * as WebSocket from 'ws';
 import { SenderCommunicator } from './SenderCommunicator';
 import { ListenCommunicator } from './ListenCommunicator';
 import { MonitoringEventHandler } from './MonitoringEventHandler';
+import { InitIncubationEventHandler } from './InitIncubationEventHandler';
 
 import { WSDataEvent, WSMessage } from '@interfaces/utility/connection';
 
 import type { IMonitoringEventOutput } from '@interfaces/ios/ws/monitoringEvent';
+import type { IInitIncubationEventOutput } from '@interfaces/ios/ws/initIncubationEvent';
 export class CommunicateIncubatorService {
 	constructor(
 		private sender = new SenderCommunicator(),
@@ -27,9 +29,12 @@ export class CommunicateIncubatorService {
 	}
 
 	public addListener(ws: WebSocket) {
+		const initIncubationEventHandler = new InitIncubationEventHandler();
+
 		const handleMessageEvent = async (message: WSMessage<any>) => {
-			console.log(message);
 			if (message.eventName === WSDataEvent.INIT_INCUBATION) {
+				const callback = (output: IInitIncubationEventOutput) => this.sender.sendMessage(output);
+				await initIncubationEventHandler.exec(message, callback);
 			}
 		};
 
