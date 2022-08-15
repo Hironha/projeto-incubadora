@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import enableWS from 'express-ws';
 import helmet from 'helmet';
+import cors from 'cors';
 
 import { logAvailableRoutes } from '@utils/routes';
 import { routerFactories } from './routers';
@@ -18,12 +19,11 @@ const isDev = process.env.NODE_ENV === 'dev';
 const hostname: string = process.env.HOSTNAME || 'localhost';
 
 app.use(helmet());
+app.use(cors({ allowedHeaders: ['GET', 'PUT', 'POST'], origin: '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const routers: Router[] = Object.values(routerFactories).map((factory) =>
-	factory()
-);
+const routers: Router[] = Object.values(routerFactories).map((factory) => factory());
 
 routers.forEach((router) => {
 	app.use(router);

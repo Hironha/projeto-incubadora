@@ -18,12 +18,12 @@ export class GetIncubationDataController extends Controller {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const input = req.body;
+			const input = req.query;
 			const dto = new GetIncubationDataDto(input);
 
-			await this.getIncubationsDataService.exec(dto);
+			const data = await this.getIncubationsDataService.exec(dto);
 
-			res.status(200).json();
+			res.status(200).json(data);
 		} catch (err) {
 			console.error(err);
 			const { code, httpStatus, message } = (err as Exception).export();

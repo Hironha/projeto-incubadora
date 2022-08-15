@@ -60,7 +60,7 @@ export class IncubatorRepository {
 
 			const incubationsData: IIncubationDocData[] = [];
 			snapshot.forEach((doc) => {
-				incubationsData.push({ id: doc.id, ...doc.data } as IIncubationDocData);
+				incubationsData.push({ id: doc.id, ...doc.data() } as IIncubationDocData);
 			});
 
 			return new Right(incubationsData);
