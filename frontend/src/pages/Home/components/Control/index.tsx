@@ -19,6 +19,10 @@ export const Control = () => {
 		error: false,
 	});
 
+	const handleIncubationInitialized = (data: any) => {
+		setRequestData({ data, loading: false, error: false });
+	};
+
 	useEffect(() => {
 		let isMounted = true;
 		const controller = new AbortController();
@@ -26,9 +30,7 @@ export const Control = () => {
 			setRequestData(prev => ({ ...prev, loading: true }));
 			try {
 				const response = await api.get("incubator/incubations", {
-					params: {
-						status: "active",
-					},
+					params: { status: "active" },
 				});
 				if (!isMounted) return;
 				setRequestData({ data: response.data && response.data[0], loading: false, error: false });
@@ -54,7 +56,7 @@ export const Control = () => {
 	}
 
 	if (!requestData.data) {
-		return <StartIncubation />;
+		return <StartIncubation onIncubationInitialized={handleIncubationInitialized} />;
 	}
 
 	return (

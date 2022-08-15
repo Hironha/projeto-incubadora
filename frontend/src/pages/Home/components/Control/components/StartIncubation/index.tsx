@@ -14,7 +14,11 @@ import {
 } from "@interfaces/incubatorWS";
 import type { FormValues as ControlFormValues } from "./components/ControlForm";
 
-export const StartIncubation = () => {
+type StartIncubationProps = {
+	onIncubationInitialized: (data: any) => void;
+};
+
+export const StartIncubation = ({ onIncubationInitialized }: StartIncubationProps) => {
 	const navigate = useNavigate();
 	const startIncubationTimeout = useRef<NodeJS.Timeout | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,6 +61,7 @@ export const StartIncubation = () => {
 			const handleIncubationInitializedEvent = (data: IncubatorMessage<any>) => {
 				if (startIncubationTimeout.current) clearTimeout(startIncubationTimeout.current);
 				setIsSubmitting(false);
+				onIncubationInitialized(data.data);
 				console.log(data);
 			};
 			const handleErrorEvent = (message: IncubatorMessage<any>) => {
