@@ -17,7 +17,7 @@ export const CardsList = styled.ul`
 
 	@media (max-width: ${props => props.theme.breakpoints.sm}) {
 		grid-template-columns: 1fr;
-		padding-left: 2.4rem;
+		width: 100%;
 	}
 `;
 
@@ -35,7 +35,8 @@ export const CardWrapper = styled.li`
 	@media (max-width: ${props => props.theme.breakpoints.sm}) {
 		align-self: center;
 		padding: 1.6rem 0;
-		width: calc(100% - 2.4rem);
+		width: calc(85%);
+		margin: 0 auto;
 		height: 12rem;
 	}
 `;

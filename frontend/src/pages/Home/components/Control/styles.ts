@@ -22,7 +22,7 @@ export const Container = styled.div`
 	margin: 1.6rem auto;
 	padding: 1rem;
 	overflow-x: hidden;
-	overflow-y: scroll;
+	overflow-y: auto;
 
 	${scrollStyles}
 `;

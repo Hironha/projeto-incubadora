@@ -1,16 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import {
-	Container,
-	LottieIcon,
-	CardWrapper,
-	CardTitle,
-	CartText,
-	CardsList,
-	ImageLogo,
-	LoadingContainer,
-} from "./styles";
 
 import { Button } from "@components/Button";
+import { Loading } from "@components/Loading";
+import { LottieIcon, CardWrapper, CardTitle, CartText, CardsList } from "@styles/incubationCard";
+import { ImageLogo, LoadingContainer, Container } from "./styles";
 
 import { useWS, WSStatus } from "@hooks/useWS";
 
@@ -26,7 +19,6 @@ import {
 	type IncubatorMessage,
 	type SensorData,
 } from "@interfaces/incubatorWS";
-import { Loading } from "@components/Loading";
 
 export const Overview = () => {
 	const humidityRef: LottieRef = useRef(null);
@@ -120,26 +112,6 @@ export const Overview = () => {
 					<LottieIcon animationData={clockIcon} loop={false} />
 					<CardTitle>Estado da lâmpada</CardTitle>
 					<CartText>{sensorData?.bulbStatus || "Não Registrado"}</CartText>
-				</CardWrapper>
-				<CardWrapper>
-					<LottieIcon animationData={clockIcon} loop={false} />
-					<CardTitle>Intervalo de rotação</CardTitle>
-					<CartText>1 Hora</CartText>
-				</CardWrapper>
-				<CardWrapper>
-					<LottieIcon animationData={temperatureIcon} loop={false} />
-					<CardTitle>Temperatura de incubação</CardTitle>
-					<CartText>36°C - 38°C</CartText>
-				</CardWrapper>
-				<CardWrapper>
-					<LottieIcon animationData={calendarIcon} loop={false} />
-					<CardTitle>Início da incubação</CardTitle>
-					<CartText>04/08/2022</CartText>
-				</CardWrapper>
-				<CardWrapper>
-					<LottieIcon animationData={calendarIcon} loop={false} />
-					<CardTitle>Tempo de incubação</CardTitle>
-					<CartText>21 dias</CartText>
 				</CardWrapper>
 			</CardsList>
 		</Container>
