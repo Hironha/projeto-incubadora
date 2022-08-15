@@ -49,6 +49,27 @@ export class IncubatorRepository {
 		}
 	}
 
+	public async getIncubationByStatus(status: IncubationStatus) {
+		try {
+			const snapshot = await db
+				.collection(this.incubationsCollection)
+				.where('status', '==', status)
+				.get();
+
+			if (snapshot.empty) return new Right(null);
+
+			const incubationsData: IIncubationDocData[] = [];
+			snapshot.forEach((doc) => {
+				incubationsData.push({ id: doc.id, ...doc.data } as IIncubationDocData);
+			});
+
+			return new Right(incubationsData);
+		} catch (err) {
+			console.error(err);
+			return new Left(errors.getFail);
+		}
+	}
+
 	public async getActiveIncubation() {
 		try {
 			const snapshot = await db
