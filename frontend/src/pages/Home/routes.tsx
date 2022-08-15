@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
 import { PageLayout } from "@components/Layout";
 import { Redirect } from "@components/Redirect";
 import { PageWrapper } from "@styles/page";
-import { IncubatorControl, Overview, Tabs } from "./components";
+import { Control, Overview, Tabs } from "./components";
 
 import { AuthContext } from "@providers/AuthProvider";
 
@@ -36,7 +36,7 @@ export const useHomeRoutes = (): RouteObject[] => {
 			element: homeContainer,
 			children: [
 				{ path: "/", element: <Overview /> },
-				{ path: `/${TabOptions.CONTROL}`, element: <IncubatorControl /> },
+				{ path: `/${TabOptions.CONTROL}`, element: <Control /> },
 			],
 		},
 	];

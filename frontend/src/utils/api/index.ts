@@ -2,7 +2,7 @@ import axios from "axios";
 import { getAuth } from "firebase/auth";
 
 export const api = axios.create({
-	baseURL: "https://api.example.com",
+	baseURL: `http://${import.meta.env.VITE_API_HOSTNAME}`,
 	timeout: 60 * 1000,
 	validateStatus(status) {
 		return status >= 200 || status < 400;

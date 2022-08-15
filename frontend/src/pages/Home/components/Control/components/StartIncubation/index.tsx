@@ -14,7 +14,7 @@ import {
 } from "@interfaces/incubatorWS";
 import type { FormValues as ControlFormValues } from "./components/ControlForm";
 
-export const IncubatorControl = () => {
+export const StartIncubation = () => {
 	const navigate = useNavigate();
 	const startIncubationTimeout = useRef<NodeJS.Timeout | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
