@@ -28,7 +28,7 @@ export const CardWrapper = styled.li`
 
 	border-radius: 5px;
 	width: 13rem;
-	height: 15rem;
+	height: 14rem;
 	padding: 1.6rem;
 	box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
 
@@ -42,12 +42,12 @@ export const CardWrapper = styled.li`
 `;
 
 export const CardTitle = styled.span`
-	font-size: 1.5rem;
+	font-size: 1.6rem;
 	text-align: center;
 `;
 
 export const CartText = styled.span`
-	font-size: 2rem;
+	font-size: 1.6rem;
 	text-align: center;
 	font-weight: 600;
 `;

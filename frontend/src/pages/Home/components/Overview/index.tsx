@@ -11,7 +11,6 @@ import Logo from "@assets/images/logo.png";
 import humidityIcon from "@assets/lotties/humidity-icon.json";
 import temperatureIcon from "@assets/lotties/temperature-icon.json";
 import clockIcon from "@assets/lotties/clock-icon.json";
-import calendarIcon from "@assets/lotties/calendar-icon.json";
 
 import type { LottieRef } from "lottie-react";
 import {
