@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Loading } from "@components/Loading";
 import { StartIncubation, IncubationData } from "./components";
-import { CardTitle, CardWrapper, CardsList, CartText, LottieIcon } from "@styles/incubationCard";
 import { LoadingContainer, Container } from "./styles";
 
 import { api } from "@utils/api";
@@ -12,7 +11,13 @@ import {
 
 type RequestData<T> = { data: T | null; loading: boolean; error?: boolean };
 
+enum ControlContent {
+	ACTIVE_INCUBATION = "activeIncubation",
+	START_INCUBATION = "startIncubation",
+}
+
 export const Control = () => {
+	const [content, setContent] = useState<ControlContent | null>(null);
 	const [requestData, setRequestData] = useState<RequestData<IncubationDataType>>({
 		data: null,
 		loading: true,
@@ -21,6 +26,7 @@ export const Control = () => {
 
 	const handleIncubationInitialized = (data: any) => {
 		setRequestData({ data, loading: false, error: false });
+		setContent(ControlContent.ACTIVE_INCUBATION);
 	};
 
 	useEffect(() => {
@@ -30,7 +36,7 @@ export const Control = () => {
 			setRequestData(prev => ({ ...prev, loading: true }));
 			try {
 				const { data } = await api.get<IncubationDataType[]>("incubator/incubations", {
-					params: { status: "active" },
+					params: { status: IncubationStatus.ACTIVE },
 				});
 				if (!isMounted) return;
 				setRequestData({ data: data ? data[0] : null, loading: false, error: false });
@@ -55,7 +61,7 @@ export const Control = () => {
 		);
 	}
 
-	if (!requestData.data) {
+	if (content === ControlContent.START_INCUBATION || !requestData.data) {
 		return <StartIncubation onIncubationInitialized={handleIncubationInitialized} />;
 	}
 

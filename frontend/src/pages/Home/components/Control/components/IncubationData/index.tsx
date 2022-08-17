@@ -1,8 +1,8 @@
 import { CardsList, CardWrapper, CardTitle, CartText, LottieIcon } from "@styles/incubationCard";
 
-import temperatureIcon from "@assets/lotties/temperature-icon.json";
 import clockIcon from "@assets/lotties/clock-icon.json";
 import calendarIcon from "@assets/lotties/calendar-icon.json";
+import temperatureIcon from "@assets/lotties/temperature-icon.json";
 
 import { IncubationData as IncubationDataType, IncubationStatus } from "@interfaces/incubation";
 
@@ -31,8 +31,8 @@ export const IncubationData = ({ data }: IncubationDataProps) => {
 		const day = date.getDate();
 		const month = date.getMonth() + 1;
 		const fullYear = date.getFullYear();
-		const hours = date.getHours();
-		const minutes = date.getMinutes();
+		const hours = date.getHours().toString().padStart(2, '0');
+		const minutes = date.getMinutes().toString().padStart(2, '0');;
 		return `${day}/${month}/${fullYear} ${hours}:${minutes}`;
 	};
 
@@ -65,7 +65,7 @@ export const IncubationData = ({ data }: IncubationDataProps) => {
 
 			<CardWrapper>
 				<LottieIcon animationData={calendarIcon} />
-				<CardTitle>{isFinished ? "Finalizae em" : "Finalizará em"}</CardTitle>
+				<CardTitle>{isFinished ? "Finalizado em" : "Finalizará em"}</CardTitle>
 				<CartText>{formatDate(new Date(getExpectedFinishTimestamp()))}</CartText>
 			</CardWrapper>
 		</CardsList>
