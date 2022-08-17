@@ -9,17 +9,6 @@ export const api = axios.create({
 	},
 });
 
-api.interceptors.request.use(
-	async config => {
-		config.headers = {
-			Accept: "application/json",
-			"Content-Type": "application/json",
-		};
-		return config;
-	},
-	error => Promise.reject(error)
-);
-
 api.interceptors.response.use(
 	async response => response,
 	async error => {

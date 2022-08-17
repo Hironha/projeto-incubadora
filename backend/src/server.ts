@@ -18,8 +18,8 @@ const port = process.env.PORT ? parseInt(process.env.PORT) : 80;
 const isDev = process.env.NODE_ENV === 'dev';
 const hostname: string = process.env.HOSTNAME || 'localhost';
 
-app.use(helmet());
-app.use(cors({ allowedHeaders: ['GET', 'PUT', 'POST'], origin: '*' }));
+app.use(helmet({ referrerPolicy: { policy: 'no-referrer' } }));
+app.use(cors({ origin: '*', methods: ['GET', 'PUT', 'POST'] }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
