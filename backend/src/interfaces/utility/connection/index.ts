@@ -8,6 +8,7 @@ export enum WSDataEvent {
 	CONNECTION = 'connection',
 	INIT_INCUBATION = 'initIncubation',
 	INCUBATION_INITIALIZED = 'incubationInitialized',
+	INCUBATION_FINISHED = 'incubationFinished',
 }
 
 export type WSMessage<T> = {

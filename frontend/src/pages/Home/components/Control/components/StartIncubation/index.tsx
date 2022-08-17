@@ -58,11 +58,11 @@ export const StartIncubation = ({ onIncubationInitialized }: StartIncubationProp
 			const ws = await getWS();
 
 			const handleConnectionEvent = () => status.setStatus(WSStatus.CONNECTED);
-			const handleIncubationInitializedEvent = (data: IncubatorMessage<any>) => {
+			const handleIncubationInitializedEvent = (message: IncubatorMessage<any>) => {
 				if (startIncubationTimeout.current) clearTimeout(startIncubationTimeout.current);
 				setIsSubmitting(false);
-				onIncubationInitialized(data.data);
-				console.log(data);
+				onIncubationInitialized(message.data);
+				console.log(message);
 			};
 			const handleErrorEvent = (message: IncubatorMessage<any>) => {
 				if (startIncubationTimeout.current) clearTimeout(startIncubationTimeout.current);
@@ -76,7 +76,7 @@ export const StartIncubation = ({ onIncubationInitialized }: StartIncubationProp
 					case IncubatorMessageEvent.CONNECTION:
 						return handleConnectionEvent();
 					case IncubatorMessageEvent.INCUBATION_INITIALIZED:
-						return handleIncubationInitializedEvent(event.data);
+						return handleIncubationInitializedEvent(message);
 					case IncubatorMessageEvent.ERROR:
 						return handleErrorEvent(event.data);
 				}

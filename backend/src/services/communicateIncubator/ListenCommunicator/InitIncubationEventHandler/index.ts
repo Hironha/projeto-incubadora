@@ -18,13 +18,13 @@ export class InitIncubationEventHandler {
 		const checkHasActiveIncubationFlow = await this.checkHasActiveIncubation();
 		if (checkHasActiveIncubationFlow.isLeft()) return;
 
-		if (!checkHasActiveIncubationFlow.export()) {
-			const initIncubationData = getInitIncubationDataFlow.export();
-			console.log(initIncubationData);
-			sender.sendMessage(initIncubationData);
+		if (checkHasActiveIncubationFlow.export()) {
+			this.notifyActiveIncubation(ws);
+			return;
 		}
 
-		this.notifyActiveIncubation(ws);
+		const initIncubationData = getInitIncubationDataFlow.export();
+		sender.sendMessage(initIncubationData);
 	}
 
 	public async getInitIncubationData(dto: InitIncubationDto) {

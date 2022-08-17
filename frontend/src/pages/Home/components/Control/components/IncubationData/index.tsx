@@ -25,14 +25,14 @@ export const IncubationData = ({ data }: IncubationDataProps) => {
 		return timeAcronyms.join(" ").trim();
 	};
 
-	const getExpectedFinishTimestamp = () => data.started_at + data.incubation_duration;
+	const getExpectedFinishTimestamp = () => data.started_at + data.incubation_duration * 1000;
 
 	const formatDate = (date: Date) => {
 		const day = date.getDate();
 		const month = date.getMonth() + 1;
 		const fullYear = date.getFullYear();
-		const hours = date.getHours().toString().padStart(2, '0');
-		const minutes = date.getMinutes().toString().padStart(2, '0');;
+		const hours = date.getHours().toString().padStart(2, "0");
+		const minutes = date.getMinutes().toString().padStart(2, "0");
 		return `${day}/${month}/${fullYear} ${hours}:${minutes}`;
 	};
 

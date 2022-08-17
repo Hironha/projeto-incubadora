@@ -2,7 +2,9 @@
 #include <DHT.h>
 #include <ESP8266WiFi.h>
 #include <IncubatorStepper.h>
+#include <NTPClient.h>
 #include <WebSocketsClient.h>
+#include <WiFiUdp.h>
 
 #define DHT_PIN D1
 #define DHT_TYPE DHT11
@@ -15,11 +17,13 @@
 #define MONITORING_EVENT "monitoring"
 #define INIT_INCUBATION_EVENT "initIncubation"
 #define INCUBATION_INITIALIZED_EVENT "incubationInitialized"
+#define INCUBATION_FINISHED_EVENT "incubationFinished"
 
 #define BULB_ON "on"
 #define BULB_OFF "off"
 
 typedef struct IncubationData {
+  time_t finish_timestamp;
   unsigned long duration;
   unsigned long roll_interval;
   int min_temperature;
@@ -33,9 +37,19 @@ IncubationData *incubationData = NULL;
 
 WebSocketsClient webSocket;
 
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 0, 10 * 1000);
+
 IncubatorStepper stepper(STEPPER_STEP, STEPPER_DIR);
 
 DHT dht(DHT_PIN, DHT_TYPE);
+
+void clearIncubationData() {
+  if (incubationData != NULL) {
+    delete incubationData;
+  }
+  incubationData = NULL;
+}
 
 void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
   switch (type) {
@@ -44,10 +58,14 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
       break;
     }
     case WStype_TEXT: {
-      String event = (char*) payload;
+      String event = (char *)payload;
       StaticJsonDocument<256> eventJSON;
       deserializeJson(eventJSON, event);
-      handleStartIncubation(&eventJSON);
+      String eventName = eventJSON["eventName"];
+      Serial.println(eventName);
+      if(eventName.equals(INIT_INCUBATION_EVENT)) {
+        handleStartIncubation(&eventJSON);
+      }
     }
     case WStype_CONNECTED: {
       Serial.println("[WSc] Connected to url");
@@ -56,7 +74,7 @@ void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
   }
 }
 
-void handleStartIncubation(StaticJsonDocument<256> *json) {
+void handleStartIncubation( StaticJsonDocument<256> *json ) {
   String buffer;
   StaticJsonDocument<256> doc;
 
@@ -65,22 +83,34 @@ void handleStartIncubation(StaticJsonDocument<256> *json) {
   doc["data"]["status"] = "active";
   serializeJson(doc, buffer);
   webSocket.sendTXT(buffer);
-  
-  if(incubationData != NULL){
-    delete incubationData;
-    incubationData = NULL;
-  }
-  
+
+  clearIncubationData();
+
   incubationData = new IncubationData;
   incubationData->roll_interval = (*json)["data"]["roll_interval"];
   incubationData->duration = (*json)["data"]["incubation_duration"];
   incubationData->min_temperature = (*json)["data"]["min_temperature"];
   incubationData->max_temperature = (*json)["data"]["max_temperature"];
-  
+  incubationData->finish_timestamp = incubationData->duration + timeClient.getEpochTime();
+  stepper.setInterval(incubationData->roll_interval);
+
   Serial.println(incubationData->roll_interval);
   Serial.println(incubationData->duration);
   Serial.println(incubationData->min_temperature);
   Serial.println(incubationData->max_temperature);
+}
+
+void handleIncubationFinished() {
+  String buffer;
+  StaticJsonDocument<256> doc;
+
+  doc["eventName"] = INCUBATION_FINISHED_EVENT;
+  doc["data"] = NULL;
+
+  serializeJson(doc, buffer);
+  webSocket.sendTXT(buffer);
+
+  clearIncubationData();
 }
 
 void setup() {
@@ -90,7 +120,7 @@ void setup() {
 
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
-    Serial.println(".");
+    Serial.print(".");
     delay(500);
   }
   Serial.print("Connected, IP address: ");
@@ -101,26 +131,34 @@ void setup() {
   webSocket.setReconnectInterval(3000);
   webSocket.enableHeartbeat(15000, 3000, 2);
 
-  while(incubationData == NULL) {
+  timeClient.begin();
+  
+  while (incubationData == NULL) {
+    timeClient.update();
     webSocket.loop();
+    delay(200);
   }
 
   stepper.setMaxSpeed(80);
   stepper.setAcceleration(200);
   stepper.setSteps(20);
-  stepper.setInterval(incubationData->roll_interval);
 }
 
 void loop() {
-  if (WiFi.status() != WL_CONNECTED || incubationData == NULL) {
+  timeClient.update();
+ 
+  if (WiFi.status() != WL_CONNECTED || incubationData == NULL) return;
+  
+  if(checkFinishedIncubation(20)){
+    Serial.println(timeClient.getEpochTime());
+    handleIncubationFinished();
     return;
   }
 
   webSocket.loop();
   loopSensor();
   stepper.loop();
-
-  delay(100);
+  delay(200);
 }
 
 void loopSensor() {
@@ -134,7 +172,7 @@ void loopSensor() {
     return;
   }
 
-  
+
   if(temperature <= incubationData->min_temperature){
     digitalWrite(RELAY_PIN, HIGH);
   }else if (temperature >= incubationData->max_temperature) {
@@ -161,6 +199,22 @@ void sendSensorData(float humidity, float temperature) {
   webSocket.sendTXT(buffer);
 }
 
+bool checkFinishedIncubation(const time_t interval) {
+  static time_t lastTime = 0;
+  const time_t cur = millis();
+  const time_t diff = cur - lastTime;
+
+  if (lastTime == 0) {
+    lastTime = cur;
+    return false;
+  }
+
+  if (diff < interval * 1000) return false;
+
+  lastTime = cur;
+  return timeClient.getEpochTime() >= incubationData->finish_timestamp;
+}
+
 bool checkSensorInterval(const time_t interval) {
   static time_t lastTime = 0;
   const time_t cur = millis();
@@ -170,9 +224,7 @@ bool checkSensorInterval(const time_t interval) {
     lastTime = cur;
   }
 
-  if (diff < interval * 1000) {
-    return false;
-  }
+  if (diff < interval * 1000) return false;
 
   lastTime = cur;
   return true;

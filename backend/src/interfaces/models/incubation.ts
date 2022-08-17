@@ -11,6 +11,7 @@ export interface IIncubation {
 	max_temperature: number;
 	status: IncubationStatus;
 	started_at: number;
+	finished_at?: number;
 }
 
 export interface IIncubationDocData extends IIncubation {

@@ -1,5 +1,6 @@
 import { WSDataEntity } from '@utils/entity/WSDataEntity';
 import { MonitoringEventHandler } from './MonitoringEventHandler';
+import { IncubationFinishedEventHandler } from './IncubationFinishedEventHandler';
 import { IncubationInitializedEventHandler } from './IncubationInitializedEventHandler';
 
 import type { WebSocket, ErrorEvent, CloseEvent, RawData } from 'ws';
@@ -15,7 +16,8 @@ export class SenderCommunicator {
 
 	constructor(
 		private monitoringEventHandler = new MonitoringEventHandler(),
-		private incubationInitializedEventHandler = new IncubationInitializedEventHandler()
+		private incubationInitializedEventHandler = new IncubationInitializedEventHandler(),
+		private incubationFinishedEventHandler = new IncubationFinishedEventHandler()
 	) {}
 
 	public setSender(ws: WebSocket, listeners: ListenCommunicator) {
@@ -32,8 +34,8 @@ export class SenderCommunicator {
 	}
 
 	public sendMessage<T>(message: T) {
-		console.log(`Sending message to Sender`, message);
 		if (!this.sender) return;
+		console.log(`Sending message to Sender`, message);
 		this.sender.send(JSON.stringify(message));
 	}
 
@@ -41,8 +43,7 @@ export class SenderCommunicator {
 
 	private handleMessageEvent(listeners: ListenCommunicator) {
 		return async (data: RawData, isBinary: boolean) => {
-			const dataEntity = new WSDataEntity(data, isBinary);
-			const message = await dataEntity.json<WSMessage<any>>();
+			const message = await this.parseMessage(data, isBinary);
 			if (!message) return;
 
 			if (message.eventName === WSDataEvent.MONITORING) {
@@ -51,11 +52,23 @@ export class SenderCommunicator {
 			}
 
 			if (message.eventName === WSDataEvent.INCUBATION_INITIALIZED) {
-				console.log(message);
-				const callback = (output: IIncubationInitializedEventOutput) => listeners.broadcast(output);
+				const callback = (output: IIncubationInitializedEventOutput) => {
+					listeners.broadcast(output);
+				};
 				await this.incubationInitializedEventHandler.exec(message, callback);
 			}
+
+			if (message.eventName === WSDataEvent.INCUBATION_FINISHED) {
+				console.log('Incubation Finished');
+				await this.incubationFinishedEventHandler.exec(message, listeners);
+			}
 		};
+	}
+
+	private async parseMessage(data: RawData, isBinary: boolean) {
+		const dataEntity = new WSDataEntity(data, isBinary);
+		const parsedMessage = await dataEntity.json<WSMessage<any>>();
+		return parsedMessage;
 	}
 
 	private handlePingEvent() {
@@ -75,7 +88,7 @@ export class SenderCommunicator {
 		};
 	}
 
-	private handleCloseEvent(getListeners: ListenCommunicator) {
+	private handleCloseEvent(listeners: ListenCommunicator) {
 		return async (event: CloseEvent) => {
 			this.sender = null;
 		};

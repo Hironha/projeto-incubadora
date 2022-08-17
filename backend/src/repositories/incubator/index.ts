@@ -49,6 +49,15 @@ export class IncubatorRepository {
 		}
 	}
 
+	public async updateById(id: string, incubationData: Partial<IIncubation>) {
+		try {
+			await db.collection(this.incubationsCollection).doc(id).update(incubationData);
+			return new Right(null);
+		} catch (err) {
+			return new Left(null);
+		}
+	}
+
 	public async getIncubationByStatus(status: IncubationStatus) {
 		try {
 			const snapshot = await db

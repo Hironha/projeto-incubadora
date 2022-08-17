@@ -14,17 +14,15 @@ const parseTimeInputToNumber = (input: string) => {
 	const timeAcronymsMap = getTimeAcronymsMap();
 	if (!matches) return 0;
 
-	return (
-		matches.reduce((total, match) => {
-			const time = match.match(/\d+/)?.at(0);
-			const acronym = match.match(/[dhms]/)?.at(0);
-			if (!time || !acronym) return total;
+	return matches.reduce((total, match) => {
+		const time = match.match(/\d+/)?.at(0);
+		const acronym = match.match(/[dhms]/)?.at(0);
+		if (!time || !acronym) return total;
 
-			const acronymValue = timeAcronymsMap.get(acronym as TimeAcronyms);
-			if (acronymValue) return total + parseFloat(time) * acronymValue;
-			return total;
-		}, 0) * 1000
-	);
+		const acronymValue = timeAcronymsMap.get(acronym as TimeAcronyms);
+		if (acronymValue) return total + parseFloat(time) * acronymValue;
+		return total;
+	}, 0);
 };
 
 const parseTemperatureInputToNumber = (input: string) => {

@@ -27,7 +27,6 @@ export class IncubationInitializedEventHandler {
 			incubationInitializedData.data
 		);
 		if (saveIncubationFlow.isLeft()) console.error(saveIncubationFlow.export());
-
 		await callback(incubationInitializedData);
 	}
 
