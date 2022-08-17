@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 
 import { validationSchema } from "./utils/validation";
 
@@ -11,12 +11,15 @@ import { LayoutGroup } from "framer-motion";
 import { Form } from "@components/Form";
 import { Input } from "@components/Input";
 
+import { api } from "@utils/api";
+
 export type FormValues = {
 	email: string;
 	password: string;
+	passwordConfirm: string;
 };
 
-export const LoginForm = () => {
+export const SignUpForm = () => {
 	const navigate = useNavigate();
 	const [submitting, setSubmitting] = useState(false);
 	const [isValid, setIsValid] = useState(false);
@@ -25,17 +28,17 @@ export const LoginForm = () => {
 	const initialValues: FormValues = {
 		email: "",
 		password: "",
+		passwordConfirm: "",
 	};
 
 	const handleSubmit = async (values: FormValues) => {
 		try {
-			const auth = getAuth();
 			setSubmitting(true);
 
-			await signInWithEmailAndPassword(auth, values.email, values.password);
+			await api.post("/users/create", { email: values.email, password: values.password });
 
 			setTimeout(() => {
-				navigate("/");
+				navigate("/login");
 			}, 500);
 		} catch (err) {
 			console.log(err);
@@ -57,12 +60,19 @@ export const LoginForm = () => {
 			onSubmit={handleSubmit}
 			validationSchema={validationSchema}
 		>
-			<LayoutGroup id="login-inputs">
+			<LayoutGroup id="signup-inputs">
 				<Container layoutId="container" layout="size">
 					<LogoContainer src={Logo} alt="Logo incubadora" layoutId="logo" layout />
 
 					<Form.Item as={Input} label="Email" name="email" layoutId="email" />
 					<Form.Item as={Input} label="Senha" name="password" type="password" layoutId="password" />
+					<Form.Item
+						as={Input}
+						label="Confirmação de senha"
+						name="passwordConfirm"
+						type="password"
+						layoutId="passwordConfirm"
+					/>
 
 					<CustomButton
 						layout
@@ -72,7 +82,7 @@ export const LoginForm = () => {
 						styleType={!isValid || submitting ? "secondary" : "primary"}
 						disabled={submitting || !isValid}
 					>
-						Login
+						Criar
 					</CustomButton>
 				</Container>
 			</LayoutGroup>

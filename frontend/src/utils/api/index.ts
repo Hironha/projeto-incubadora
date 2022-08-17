@@ -4,8 +4,8 @@ import { getAuth } from "firebase/auth";
 export const api = axios.create({
 	baseURL: `http://${import.meta.env.VITE_API_HOSTNAME}`,
 	timeout: 60 * 1000,
-	validateStatus(status) {
-		return status >= 200 || status < 400;
+	validateStatus: status => {
+		return status >= 200 && status <= 300;
 	},
 });
 
@@ -13,7 +13,7 @@ api.interceptors.request.use(
 	async config => {
 		config.headers = {
 			Accept: "application/json",
-			"Content-Type": "application/x-www-form-urlencoded",
+			"Content-Type": "application/json",
 		};
 		return config;
 	},

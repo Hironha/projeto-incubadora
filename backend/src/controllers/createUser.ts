@@ -19,6 +19,7 @@ export class CreateUserController extends Controller {
 	): Promise<void> {
 		try {
 			const input = req.body;
+			console.log(input);
 			const dto = new CreateUserDto(input);
 
 			await this.createUserService.exec(dto);
