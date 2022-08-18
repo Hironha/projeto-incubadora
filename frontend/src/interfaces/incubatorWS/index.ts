@@ -1,9 +1,10 @@
 export enum IncubatorMessageEvent {
-	ERROR = 'error',
+	ERROR = "error",
 	MONITORING = "monitoring",
 	CONNECTION = "connection",
 	INIT_INCUBATION = "initIncubation",
-	INCUBATION_INITIALIZED = 'incubationInitialized'
+	INCUBATION_FINISHED = "incubationFinished",
+	INCUBATION_INITIALIZED = "incubationInitialized",
 }
 
 export enum IncubatorCloseEvent {
@@ -32,5 +33,5 @@ export type InitIncubationValues = {
 	incubation_duration: number;
 	max_temperature: number;
 	min_temperature: number;
-	started_at: number
+	started_at: number;
 };

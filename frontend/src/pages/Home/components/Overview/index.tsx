@@ -6,6 +6,7 @@ import { LottieIcon, CardWrapper, CardTitle, CartText, CardsList } from "@styles
 import { ImageLogo, LoadingContainer, Container } from "./styles";
 
 import { useWS, WSStatus } from "@hooks/useWS";
+import { formatters } from "@utils/incubation/formatters";
 
 import Logo from "@assets/images/logo.png";
 import humidityIcon from "@assets/lotties/humidity-icon.json";
@@ -27,22 +28,6 @@ export const Overview = () => {
 		url: `ws://${import.meta.env.VITE_API_HOSTNAME}/incubator/listen`,
 		reconnect: true,
 	});
-
-	const formatCelsius = (temperature: number) => {
-		const formatter = new Intl.NumberFormat("pt-br", {
-			notation: "standard",
-			maximumFractionDigits: 2,
-		});
-		return `${formatter.format(temperature)} °C`;
-	};
-
-	const formatHumidity = (humidity: number) => {
-		const formatter = new Intl.NumberFormat("pt-br", {
-			notation: "standard",
-			maximumFractionDigits: 2,
-		});
-		return `${formatter.format(humidity)}%`;
-	};
 
 	const handleReconnect = () => reconnect();
 
@@ -98,13 +83,15 @@ export const Overview = () => {
 				<CardWrapper>
 					<LottieIcon animationData={humidityIcon} loop={false} lottieRef={humidityRef} />
 					<CardTitle>Umidade atual</CardTitle>
-					<CartText>{sensorData ? formatHumidity(sensorData.humidity) : "Não Registrado"}</CartText>
+					<CartText>
+						{sensorData ? formatters.formatHumidity(sensorData.humidity) : "Não Registrado"}
+					</CartText>
 				</CardWrapper>
 				<CardWrapper>
 					<LottieIcon animationData={temperatureIcon} lottieRef={temperatureRef} loop={false} />
 					<CardTitle>Temperatura atual</CardTitle>
 					<CartText>
-						{sensorData ? formatCelsius(sensorData.temperature) : "Não Registrado"}
+						{sensorData ? formatters.formatTemperature(sensorData.temperature) : "Não Registrado"}
 					</CartText>
 				</CardWrapper>
 				<CardWrapper>

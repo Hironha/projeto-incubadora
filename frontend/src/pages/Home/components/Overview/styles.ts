@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import Lottie from "lottie-react";
 import { scrollStyles } from "@styles/scrollbar";
 
 export const Container = styled.div`
@@ -9,7 +8,6 @@ export const Container = styled.div`
 	gap: 1.6rem;
 
 	width: calc(100% - 2rem);
-	height: calc(100% - 3.2rem);
 	margin: 0 auto;
 	padding: 1rem;
 	overflow-x: hidden;
