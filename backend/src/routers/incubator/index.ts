@@ -4,6 +4,7 @@ import { ListenIncubator } from '@communicators/listenIncubator';
 import { SendIncubator } from '@communicators/sendIncubator';
 import { handleRequest, handleMiddleware } from '@utils/communicator';
 import { handleRequest as handleControllerRequest } from '@utils/controller';
+import { authenticationMiddleware } from '@middlewares/authentication';
 
 import type { RouterFactory } from '@interfaces/utility/router';
 import { GetIncubationDataController } from '@controllers/getIncubationData';
@@ -16,7 +17,11 @@ export const getRouter: RouterFactory = () => {
 	router.ws('/incubator/listen', handleMiddleware(listenIncubator), handleRequest(listenIncubator));
 	router.ws('/incubator/send', handleRequest(new SendIncubator(communicateIncubatorService)));
 
-	router.get('/incubator/incubations', handleControllerRequest(new GetIncubationDataController()));
+	router.get(
+		'/incubator/incubations',
+		authenticationMiddleware,
+		handleControllerRequest(new GetIncubationDataController())
+	);
 
 	return router;
 };

@@ -21,7 +21,8 @@ module.exports = {
 					'@services': './src/services',
 					'@interfaces': './src/interfaces',
 					'@utils': './src/utils',
-					"@repositories": './src/repositories'
+					'@repositories': './src/repositories',
+					'@middlewares': './src/middlewares',
 				},
 			},
 		],
