@@ -30,7 +30,7 @@ export const FinishedIncubations = ({ onStartIncubation }: FinishedIncubationsPr
 		error: false,
 	});
 
-	const getTemperatureRange = (maxTemperature: number, minTemperature: number) => {
+	const getTemperatureRange = (minTemperature: number, maxTemperature: number) => {
 		return `${formatters.formatTemperature(minTemperature)} - ${formatters.formatTemperature(
 			maxTemperature
 		)}`;

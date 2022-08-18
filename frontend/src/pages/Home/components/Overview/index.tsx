@@ -97,7 +97,7 @@ export const Overview = () => {
 				<CardWrapper>
 					<LottieIcon animationData={clockIcon} loop={false} />
 					<CardTitle>Estado da lâmpada</CardTitle>
-					<CartText>{sensorData?.bulbStatus || "Não Registrado"}</CartText>
+					<CartText>{sensorData?.bulb_status || "Não Registrado"}</CartText>
 				</CardWrapper>
 			</CardsList>
 		</Container>

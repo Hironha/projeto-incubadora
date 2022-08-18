@@ -24,7 +24,7 @@ export enum BulbStatus {
 export type SensorData = {
 	humidity: number;
 	temperature: number;
-	bulbStatus: BulbStatus;
+	bulb_status: BulbStatus;
 	sensored_at: string;
 };
 

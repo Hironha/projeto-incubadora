@@ -23,6 +23,8 @@ export class MonitoringEventHandler {
 
 		const monitoringData = getMonitoringDataFlow.export();
 
+		console.log('caiu aqui')
+
 		await this.sendoredDataStore.add({
 			humidity: monitoringData.humidity,
 			temperature: monitoringData.temperature,

@@ -146,6 +146,7 @@ void setup() {
 
 void loop() {
   timeClient.update();
+  webSocket.loop();
  
   if (WiFi.status() != WL_CONNECTED || incubationData == NULL) return;
   
@@ -155,7 +156,7 @@ void loop() {
     return;
   }
 
-  webSocket.loop();
+  
   loopSensor();
   stepper.loop();
   delay(200);

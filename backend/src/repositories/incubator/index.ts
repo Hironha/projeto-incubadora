@@ -21,6 +21,7 @@ export class IncubatorRepository {
 	public async saveSensorData(sensorData: ISensorData): Promise<Either<Exception, ISensorData>> {
 		try {
 			const getActiveIncubationFlow = await this.getActiveIncubation();
+			console.log(getActiveIncubationFlow);
 			if (getActiveIncubationFlow.isLeft()) return getActiveIncubationFlow;
 
 			const activeIncubationData = getActiveIncubationFlow.export();

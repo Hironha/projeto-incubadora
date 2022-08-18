@@ -55,8 +55,6 @@ export const Control = () => {
 		};
 	}, []);
 
-	console.log(activeIncubation);
-
 	if (activeIncubation.loading) {
 		return (
 			<LoadingContainer>
