@@ -35,8 +35,16 @@ export const Container = styled.div`
 	${scrollStyles}
 `;
 
+export const TableContainer = styled.div`
+	overflow-x: auto;
+	width: 100%;
+	padding: 1.2rem;
+	${scrollStyles}
+`;
+
 export const Table = styled.table`
 	border-collapse: collapse;
+
 	width: 100%;
 `;
 
@@ -54,7 +62,6 @@ export const TBody = styled.tbody`
 	& tr {
 		&:nth-child(odd) {
 			background-color: ${props => `${props.theme.colors.main}B5`};
-			opacity: 0.7;
 		}
 	}
 `;

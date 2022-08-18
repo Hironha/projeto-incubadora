@@ -10,12 +10,12 @@ const getTimeAcronymsMap = () => {
 };
 
 const parseTimeInputToNumber = (input: string) => {
-	const matches = input.match(/(\d[dhms])+/g);
+	const matches = input.match(/(\d+[dhms])+/g);
 	const timeAcronymsMap = getTimeAcronymsMap();
 	if (!matches) return 0;
 
 	return matches.reduce((total, match) => {
-		const time = match.match(/\d+/)?.at(0);
+		const time = match.match(/\d+/g)?.at(0);
 		const acronym = match.match(/[dhms]/)?.at(0);
 		if (!time || !acronym) return total;
 

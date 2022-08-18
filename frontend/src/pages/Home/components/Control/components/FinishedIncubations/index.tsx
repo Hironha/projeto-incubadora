@@ -9,6 +9,7 @@ import {
 	Container,
 	StartIncubationButton,
 	TBody,
+	TableContainer,
 } from "./styles";
 
 import { api } from "@utils/api";
@@ -74,28 +75,34 @@ export const FinishedIncubations = ({ onStartIncubation }: FinishedIncubationsPr
 			</StartIncubationButton>
 			<h3>Incubações finalizadas</h3>
 			{finishedIncubations.data && (
-				<Table>
-					<thead>
-						<tr>
-							<TableHeader>Intervalo de Rolagem</TableHeader>
-							<TableHeader>Duração</TableHeader>
-							<TableHeader>Temperatura</TableHeader>
-						</tr>
-					</thead>
-					<TBody>
-						{finishedIncubations.data.map(incubation => (
-							<tr key={incubation.id}>
-								<TableData>{formatters.secondsToTimeAcronym(incubation.roll_interval)}</TableData>
-								<TableData>
-									{formatters.secondsToTimeAcronym(incubation.incubation_duration)}
-								</TableData>
-								<TableData>
-									{getTemperatureRange(incubation.min_temperature, incubation.max_temperature)}
-								</TableData>
+				<TableContainer>
+					<Table>
+						<thead>
+							<tr>
+								<TableHeader>Data de início</TableHeader>
+								<TableHeader>Intervalo de Rolagem</TableHeader>
+								<TableHeader>Duração</TableHeader>
+								<TableHeader>Temperatura</TableHeader>
 							</tr>
-						))}
-					</TBody>
-				</Table>
+						</thead>
+						<TBody>
+							{finishedIncubations.data.map(incubation => (
+								<tr key={incubation.id}>
+									<TableHeader>
+										{formatters.formatDate(new Date(incubation.started_at))}
+									</TableHeader>
+									<TableData>{formatters.secondsToTimeAcronym(incubation.roll_interval)}</TableData>
+									<TableData>
+										{formatters.secondsToTimeAcronym(incubation.incubation_duration)}
+									</TableData>
+									<TableData>
+										{getTemperatureRange(incubation.min_temperature, incubation.max_temperature)}
+									</TableData>
+								</tr>
+							))}
+						</TBody>
+					</Table>
+				</TableContainer>
 			)}
 		</Container>
 	);

@@ -14,7 +14,7 @@ export const useSignUpRoutes = (): RouteObject[] => {
 	return [
 		{
 			element: (
-				// <Redirect to="/" validation={verifyAuthentication()}>
+				<Redirect to="/" validation={verifyAuthentication()}>
 					<PageLayout>
 						<PageWrapper>
 							<Outlet />
@@ -22,7 +22,7 @@ export const useSignUpRoutes = (): RouteObject[] => {
 					</PageLayout>
 				// </Redirect>
 			),
-			children: [{ path: "/create", element: <SignUpForm /> }],
+			children: [{ path: "/sign-up", element: <SignUpForm /> }],
 		},
 	];
 };
