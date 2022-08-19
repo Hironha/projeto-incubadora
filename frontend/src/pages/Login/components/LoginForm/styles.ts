@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { motion } from "framer-motion";
 import { Button } from "@components/Button";
+import { Link } from "react-router-dom";
 
 export const LogoContainer = styled(motion.img)`
 	max-width: 100%;
@@ -17,4 +18,14 @@ export const Container = styled(motion.div)`
 
 export const CustomButton = styled(Button)`
 	margin-top: 2.4rem;
+`;
+
+export const SignUpLinkContainer = styled.p`
+	font-size: 14px;
+`;
+
+export const SignUpLink = styled(Link)`
+	text-decoration: none;
+	color: ${props => props.theme.colors.blue};
+	border-bottom: 1px solid ${props => props.theme.colors.blue};
 `;

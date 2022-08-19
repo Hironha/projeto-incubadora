@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getAuth } from "firebase/auth";
-
+import { useNavigate, Link } from "react-router-dom";
 import { validationSchema } from "./utils/validation";
 
-import { LogoContainer, Container, CustomButton } from "./styles";
+import { LogoContainer, Container, CustomButton, LoginLinkContainer, LoginLink } from "./styles";
 
 import Logo from "@assets/images/logo.png";
 import { LayoutGroup } from "framer-motion";
@@ -84,6 +82,7 @@ export const SignUpForm = () => {
 					>
 						Criar
 					</CustomButton>
+					<LoginLinkContainer>Já possui conta? Faça <LoginLink to="/login">login!</LoginLink></LoginLinkContainer>
 				</Container>
 			</LayoutGroup>
 		</Form.Provider>

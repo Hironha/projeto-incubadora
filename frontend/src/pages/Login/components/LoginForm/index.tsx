@@ -4,7 +4,7 @@ import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 import { validationSchema } from "./utils/validation";
 
-import { LogoContainer, Container, CustomButton } from "./styles";
+import { LogoContainer, Container, CustomButton, SignUpLinkContainer, SignUpLink } from "./styles";
 
 import Logo from "@assets/images/logo.png";
 import { LayoutGroup } from "framer-motion";
@@ -74,6 +74,7 @@ export const LoginForm = () => {
 					>
 						Login
 					</CustomButton>
+					<SignUpLinkContainer>Não possui conta? <SignUpLink to="/sign-up">Cadastre-se!</SignUpLink></SignUpLinkContainer>
 				</Container>
 			</LayoutGroup>
 		</Form.Provider>
