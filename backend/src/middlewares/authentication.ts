@@ -4,7 +4,7 @@ import type { Request, Response, NextFunction } from 'express';
 
 export const authenticationMiddleware = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const token = (req.headers['sec-websocket-protocol'] as string).split(', ').at(1);
+		const token = (req.headers['Authorization'] as string).split(', ').at(1);
 		if (!token) throw new Error();
 
 		const auth = getAuth();
