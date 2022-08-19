@@ -18,3 +18,13 @@ export const Container = styled(motion.div)`
 export const CustomButton = styled(Button)`
 	margin-top: 2.4rem;
 `;
+
+export const LoginLinkContainer = styled.p`
+	font-size: 14px;
+`;
+
+export const LoginLink = styled.a`
+	text-decoration: none;
+	color: ${props => props.theme.colors.blue};
+	border-bottom: 1px solid ${props => props.theme.colors.blue};
+`;
