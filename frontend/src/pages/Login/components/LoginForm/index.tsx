@@ -74,7 +74,7 @@ export const LoginForm = () => {
 					>
 						Login
 					</CustomButton>
-					<SignUpLinkContainer>Não possui conta? <SignUpLink href="/sign-up">Cadastre-se!</SignUpLink></SignUpLinkContainer>
+					<SignUpLinkContainer>Não possui conta? <SignUpLink to="/sign-up">Cadastre-se!</SignUpLink></SignUpLinkContainer>
 				</Container>
 			</LayoutGroup>
 		</Form.Provider>

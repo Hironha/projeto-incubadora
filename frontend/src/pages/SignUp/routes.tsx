@@ -20,7 +20,7 @@ export const useSignUpRoutes = (): RouteObject[] => {
 							<Outlet />
 						</PageWrapper>
 					</PageLayout>
-				// </Redirect>
+				</Redirect>
 			),
 			children: [{ path: "/sign-up", element: <SignUpForm /> }],
 		},
