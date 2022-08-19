@@ -11,8 +11,8 @@ const secondsToTimeAcronym = (seconds: number) => {
 	const acronymsInSeconds = { d: 86400, h: 3600, m: 60, s: 1 };
 	let timeInSeconds = seconds;
 	const timeAcronyms = Object.entries(acronymsInSeconds).map(([acronym, value]) => {
-		const acronymValue = Math.round(timeInSeconds / value);
-		timeInSeconds -= acronymValue * value;
+		const acronymValue = Math.floor(timeInSeconds / value);
+		timeInSeconds -= acronymValue * value + (timeInSeconds % value);
 		return acronymValue ? acronymValue.toString().concat(acronym) : "";
 	});
 

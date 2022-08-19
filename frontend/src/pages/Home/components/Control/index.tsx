@@ -30,6 +30,10 @@ export const Control = () => {
 		setContent(ControlContent.ACTIVE_INCUBATION);
 	};
 
+	const handleIncubationFinished = () => {
+		setContent(ControlContent.FINISHED_INCUBATIONS)
+	}
+
 	useEffect(() => {
 		let isMounted = true;
 		const controller = new AbortController();
@@ -79,7 +83,7 @@ export const Control = () => {
 			{activeIncubation.data && (
 				<CurrentIncubation
 					data={activeIncubation.data}
-					onIncubationFinished={() => console.log("incubation finished")}
+					onIncubationFinished={handleIncubationFinished}
 				/>
 			)}
 		</Container>
