@@ -9,6 +9,22 @@ export const api = axios.create({
 	},
 });
 
+api.interceptors.request.use(async response => {
+	if (response.headers) {
+		if (!response.headers["Authorization"]) {
+			const token = await getAuth().currentUser?.getIdToken();
+			response.headers["Authorization"] = `Bearer ${token}`;
+		}
+	} else {
+		const token = await getAuth().currentUser?.getIdToken();
+		response.headers = {
+			Authorization: `Bearer ${token}`,
+		};
+	}
+
+	return Promise.resolve(response);
+});
+
 api.interceptors.response.use(
 	async response => response,
 	async error => {
