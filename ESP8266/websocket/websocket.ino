@@ -5,14 +5,18 @@
 #include <NTPClient.h>
 #include <WebSocketsClient.h>
 #include <WiFiUdp.h>
+#include <WiFiManager.h>
+#include <Ticker.h>
 
-#define DHT_PIN D1
+#define LED LED_BUILTIN
+
+#define DHT_PIN 15 //D8
 #define DHT_TYPE DHT11
 
-#define RELAY_PIN D0
+#define RELAY_PIN 0 //D3
 
-#define STEPPER_STEP 2
-#define STEPPER_DIR 0
+#define STEPPER_STEP 16 //D0
+#define STEPPER_DIR 5 //D1
 
 #define MONITORING_EVENT "monitoring"
 #define INIT_INCUBATION_EVENT "initIncubation"
@@ -22,6 +26,11 @@
 #define BULB_ON "on"
 #define BULB_OFF "off"
 
+Ticker ticker;
+
+String strMacAddress;
+char macAddress[6];
+
 typedef struct IncubationData {
   time_t finish_timestamp;
   unsigned long duration;
@@ -30,8 +39,8 @@ typedef struct IncubationData {
   int max_temperature;
 } IncubationData;
 
-const char *ssid = "AP_60";
-const char *password = "145632789";
+//const char *ssid = "Zhone_852D";
+//const char *password = "znid309602349";
 
 IncubationData *incubationData = NULL;
 
@@ -39,6 +48,16 @@ WebSocketsClient webSocket;
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", 0, 10 * 1000);
+WiFiClient clienteWIFI;
+
+void piscar() {
+  digitalWrite(LED, !digitalRead(LED));
+}
+
+void configuracaoCallback(WiFiManager *gerenciadorWiFi) {
+  Serial.println("Modo de configuração ativado!");
+  ticker.attach(0.2, piscar);
+}
 
 IncubatorStepper stepper(STEPPER_STEP, STEPPER_DIR);
 
@@ -117,16 +136,43 @@ void setup() {
   Serial.begin(9600);
 
   pinMode(RELAY_PIN, OUTPUT);
+  pinMode(LED, OUTPUT);
 
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(500);
+  WiFi.mode(WIFI_STA);
+  ticker.attach(0.6, piscar);
+
+  WiFiManager gerenciadorWiFi;
+  //gerenciadorWiFi.resetSettings();
+  gerenciadorWiFi.setDebugOutput(false);
+  gerenciadorWiFi.setAPCallback(configuracaoCallback);
+
+  if (!gerenciadorWiFi.autoConnect("ESP8266_WiFi")) {
+    Serial.print("Falha na conexão com a WiFi");
+    ESP.restart();
+    delay(1000);
   }
-  Serial.print("Connected, IP address: ");
-  Serial.println(WiFi.localIP());
 
-  webSocket.begin("192.168.0.2", 80, "/incubator/send");
+  Serial.println();
+  Serial.println("WiFi conectado!");
+  Serial.print("Endereço IP: ");
+  Serial.println(WiFi.localIP());
+  Serial.println();
+  strMacAddress = WiFi.macAddress();
+  strMacAddress.toCharArray(macAddress, 6);
+
+  ticker.detach();
+
+  digitalWrite(LED, LOW);
+
+//  WiFi.begin(ssid, password);
+//  while (WiFi.status() != WL_CONNECTED) {
+//    Serial.print(".");
+//    delay(500);
+//  }
+//  Serial.print("Connected, IP address: ");
+//  Serial.println(WiFi.localIP());
+
+  webSocket.begin("192.168.1.16", 80, "/incubator/send");
   webSocket.onEvent(webSocketEvent);
   webSocket.setReconnectInterval(3000);
   webSocket.enableHeartbeat(15000, 3000, 2);
@@ -156,7 +202,6 @@ void loop() {
     return;
   }
 
-  
   loopSensor();
   stepper.loop();
   delay(200);
@@ -164,7 +209,7 @@ void loop() {
 
 void loopSensor() {
   const static time_t interval = 5;
-  /*
+  
   float humidity = dht.readHumidity();
   float temperature = dht.readTemperature();
 
@@ -179,11 +224,10 @@ void loopSensor() {
   }else if (temperature >= incubationData->max_temperature) {
     digitalWrite(RELAY_PIN, LOW);
   }
-  */
 
   if (checkSensorInterval(interval)) {
-    Serial.printf("%.2f   %.2f\n", 78.3, 36.5);
-    sendSensorData(78.3, 26.5);
+    //Serial.printf("%.2f   %.2f\n", 78.3, 36.5);
+    sendSensorData(humidity, temperature);
   }
 }
 
