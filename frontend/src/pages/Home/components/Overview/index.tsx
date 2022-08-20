@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "@components/Button";
 import { Loading } from "@components/Loading";
@@ -22,6 +23,7 @@ import {
 } from "@interfaces/incubatorWS";
 
 export const Overview = () => {
+	const navigate = useNavigate();
 	const humidityRef: LottieRef = useRef(null);
 	const temperatureRef: LottieRef = useRef(null);
 	const [sensorData, setSensorData] = useState<SensorData>();
@@ -54,6 +56,10 @@ export const Overview = () => {
 			status.setStatus(WSStatus.CONNECTED);
 		};
 
+		const handleIncubationFinished = () => {
+			navigate("/control");
+		};
+
 		const initWS = async () => {
 			const ws = await getWS();
 			ws.onmessage = event => {
@@ -64,6 +70,10 @@ export const Overview = () => {
 
 				if (message.eventName === IncubatorMessageEvent.CONNECTION) {
 					message.data && handleConnectionMessage();
+				}
+
+				if (message.eventName === IncubatorMessageEvent.INCUBATION_FINISHED) {
+					handleIncubationFinished();
 				}
 			};
 		};

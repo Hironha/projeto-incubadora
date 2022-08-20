@@ -19,7 +19,13 @@ const secondsToTimeAcronym = (seconds: number) => {
 	return timeAcronyms.join(" ").trim();
 };
 
-const formatTemperature = (temperature: number) => `${temperature} °C`;
+const formatTemperature = (temperature: number) => {
+	const formatter = new Intl.NumberFormat("pt-br", {
+		notation: "standard",
+		maximumFractionDigits: 2,
+	});
+	return `${formatter.format(temperature)} °C`;
+};
 
 const formatHumidity = (humidity: number) => {
 	const formatter = new Intl.NumberFormat("pt-br", {
