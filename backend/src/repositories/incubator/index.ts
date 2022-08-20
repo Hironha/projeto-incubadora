@@ -62,6 +62,7 @@ export class IncubatorRepository {
 		try {
 			const snapshot = await db
 				.collection(this.incubationsCollection)
+				.orderBy('started_at', 'desc')
 				.where('status', '==', status)
 				.get();
 
