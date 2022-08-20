@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Underline, TabItem, TabList } from "./styles";
 
@@ -38,6 +38,11 @@ export const Tabs = ({ tabs }: TabsProps) => {
 		selected: { background: theme.colors.lightGray },
 		default: { background: "rgba(255, 255, 255, 1)" },
 	};
+
+	useEffect(() => {
+		const tab = tabs.find(tab => tab.path === location.pathname);
+		if (tab) setSelectedTab(tab.value);
+	}, [location.pathname]);
 
 	return (
 		<nav>
