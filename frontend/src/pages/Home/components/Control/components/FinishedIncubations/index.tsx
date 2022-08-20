@@ -71,7 +71,7 @@ export const FinishedIncubations = ({ onStartIncubation }: FinishedIncubationsPr
 	return (
 		<Container>
 			<StartIncubationButton styleType="primary" onClick={onStartIncubation}>
-				Inicar incubação
+				Iniciar incubação
 			</StartIncubationButton>
 			<h3>Incubações finalizadas</h3>
 			{finishedIncubations.data && (

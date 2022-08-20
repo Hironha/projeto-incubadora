@@ -15,6 +15,7 @@ import clockIcon from "@assets/lotties/clock-icon.json";
 
 import type { LottieRef } from "lottie-react";
 import {
+	BulbStatus,
 	IncubatorMessageEvent,
 	type IncubatorMessage,
 	type SensorData,
@@ -30,6 +31,17 @@ export const Overview = () => {
 	});
 
 	const handleReconnect = () => reconnect();
+
+	const translateBulbStatus = (status?: BulbStatus) => {
+		switch (status) {
+			case BulbStatus.ON:
+				return "Ligado";
+			case BulbStatus.OFF:
+				return "Desligado";
+			default:
+				return "Não Registrado";
+		}
+	};
 
 	useEffect(() => {
 		const handleMonitoringMessage = (data: SensorData) => {
@@ -97,7 +109,7 @@ export const Overview = () => {
 				<CardWrapper>
 					<LottieIcon animationData={clockIcon} loop={false} />
 					<CardTitle>Estado da lâmpada</CardTitle>
-					<CartText>{sensorData?.bulb_status || "Não Registrado"}</CartText>
+					<CartText>{translateBulbStatus(sensorData?.bulb_status)}</CartText>
 				</CardWrapper>
 			</CardsList>
 		</Container>
