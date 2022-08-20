@@ -23,7 +23,7 @@ export const CurrentIncubation = ({ data, onIncubationFinished }: CurrentIncubat
 			const ws = await getWS();
 			ws.onmessage = event => {
 				const message = JSON.parse(event.data) as IncubatorMessage<any>;
-				if (message.eventName === IncubatorMessageEvent.INCUBATION_INITIALIZED) {
+				if (message.eventName === IncubatorMessageEvent.INCUBATION_FINISHED) {
 					onIncubationFinished();
 				}
 			};
