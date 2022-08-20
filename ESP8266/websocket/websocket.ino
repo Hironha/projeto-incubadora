@@ -209,6 +209,7 @@ void loop() {
 
 void loopSensor() {
   const static time_t interval = 5;
+  static bool bulbStatus = false;
   
   float humidity = dht.readHumidity();
   float temperature = dht.readTemperature();
@@ -221,22 +222,24 @@ void loopSensor() {
 
   if(temperature <= incubationData->min_temperature){
     digitalWrite(RELAY_PIN, HIGH);
+    bulbStatus = true;
   }else if (temperature >= incubationData->max_temperature) {
     digitalWrite(RELAY_PIN, LOW);
+    bulbStatus = false;
   }
 
   if (checkSensorInterval(interval)) {
     //Serial.printf("%.2f   %.2f\n", 78.3, 36.5);
-    sendSensorData(humidity, temperature);
+    sendSensorData(humidity, temperature, bulbStatus);
   }
 }
 
-void sendSensorData(float humidity, float temperature) {
+void sendSensorData(float humidity, float temperature, bool bulbStatus) {
   String buffer;
   StaticJsonDocument<256> doc;
 
   doc["eventName"] = MONITORING_EVENT;
-  doc["data"]["bulb_status"] = BULB_ON;
+  doc["data"]["bulb_status"] = bulbStatus ? BULB_ON : BULB_OFF;
   doc["data"]["humidity"] = humidity;
   doc["data"]["temperature"] = temperature;
   serializeJson(doc, buffer);
